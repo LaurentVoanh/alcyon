@@ -230,6 +230,12 @@ async function sendMessage() {
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    
+    // Vérifier que data.choices existe et n'est pas vide
+    if (!data || !data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+      throw new Error('Réponse API invalide: choices manquant');
+    }
+    
     replyData = data.choices[0].message.content;
     
   } catch(err) {
@@ -337,6 +343,12 @@ Message à analyser : "${userText}"`;
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    
+    // Vérifier que data.choices existe et n'est pas vide
+    if (!data || !data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+      throw new Error('Réponse API invalide: choices manquant');
+    }
+    
     const content = data.choices[0].message.content;
     
     // Nettoyer le JSON (enlever les backticks si présents)
