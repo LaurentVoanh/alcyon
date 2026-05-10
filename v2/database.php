@@ -1,8 +1,4 @@
 <?php
-/**
- * ALCYON v4.0 — PORTAIL DE BUGARACH
- * Base de données SQLite
- */
 require_once 'config.php';
 
 function get_db(): PDO {
@@ -21,8 +17,8 @@ function get_db(): PDO {
     $pdo->exec("CREATE TABLE IF NOT EXISTS sessions (
         id TEXT PRIMARY KEY,
         user_id INTEGER DEFAULT NULL,
-        persona TEXT DEFAULT 'durif',
-        mode TEXT DEFAULT 'canalisation',
+        model TEXT DEFAULT 'chat',
+        mode TEXT DEFAULT 'normal',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -42,41 +38,29 @@ function get_db(): PDO {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         session_id TEXT,
         message_id INT,
-        taux_bovis INT,
-        taux_label TEXT,
-        chakra_dominant TEXT,
-        aura_couleur TEXT,
-        christ_cosmique INT,
-        monarque_sacre INT,
-        pape_spirituel INT,
-        emprise_reptilienne INT,
-        kvorz INT,
-        niveau_eveil INT,
-        elements_terre INT,
-        elements_eau INT,
-        elements_feu INT,
-        elements_air INT,
-        elements_ether INT,
-        evacuation_eligible INT,
-        evacuation_percent INT,
-        evacuation_note TEXT,
-        geo_forme TEXT,
-        geo_nombre TEXT,
-        geo_cristal TEXT,
-        geo_portail TEXT,
-        ego INT,
-        humilite INT,
-        fierte INT,
-        intentions TEXT,
+        sentiment TEXT,
+        sentiment_score REAL,
+        emotion_primary TEXT,
+        emotion_secondary TEXT,
+        tone TEXT,
+        style_formal INT,
+        style_assertive INT,
+        style_creative INT,
+        complexity INT,
+        vocabulary_richness INT,
+        avg_sentence_len REAL,
+        word_count INT,
         themes TEXT,
         keywords TEXT,
-        verbe_parole TEXT,
-        verbe_action TEXT,
-        verbe_creation TEXT,
-        astro_ascendant TEXT,
-        astro_lunaire TEXT,
-        astro_solaire TEXT,
-        raw_analysis TEXT,
+        intent TEXT,
+        language_patterns TEXT,
+        rhetorical_devices TEXT,
+        cognitive_load INT,
+        information_density INT,
+        question_count INT,
+        certainty_level INT,
+        raw_analysis_a TEXT,
+        raw_analysis_b TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -104,35 +88,31 @@ function save_message(string $session, string $role, string $content, int $ti = 
     return (int)$db->lastInsertId();
 }
 
-function save_analysis(string $session, int $msg_id, array $a): void {
-    $db = get_db();
-    $elems = $a['elements'] ?? [];
+function save_analysis(string $session, int $msg_id, array $a, array $b): void {
+    $db   = get_db();
+    $text = $a['source_text'] ?? '';
+    $wc   = str_word_count($text);
+    $sents = preg_split('/[.!?]+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+    $avg  = ($wc > 0 && count($sents) > 0) ? round($wc / count($sents), 1) : 0;
+
     $db->prepare("INSERT INTO analyses (
-        session_id,message_id,
-        taux_bovis,taux_label,chakra_dominant,aura_couleur,
-        christ_cosmique,monarque_sacre,pape_spirituel,
-        emprise_reptilienne,kvorz,niveau_eveil,
-        elements_terre,elements_eau,elements_feu,elements_air,elements_ether,
-        evacuation_eligible,evacuation_percent,evacuation_note,
-        geo_forme,geo_nombre,geo_cristal,geo_portail,
-        ego,humilite,fierte,
-        intentions,themes,keywords,
-        verbe_parole,verbe_action,verbe_creation,
-        astro_ascendant,astro_lunaire,astro_solaire,
-        raw_analysis
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")->execute([
+        session_id,message_id,sentiment,sentiment_score,emotion_primary,emotion_secondary,tone,
+        style_formal,style_assertive,style_creative,complexity,vocabulary_richness,
+        avg_sentence_len,word_count,themes,keywords,intent,language_patterns,rhetorical_devices,
+        cognitive_load,information_density,question_count,certainty_level,raw_analysis_a,raw_analysis_b
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")->execute([
         $session, $msg_id,
-        $a['taux_bovis'] ?? 50, $a['taux_label'] ?? 'NORMAL', $a['chakra_dominant'] ?? '—', $a['aura_couleur'] ?? '—',
-        $a['christ_cosmique'] ?? 50, $a['monarque_sacre'] ?? 50, $a['pape_spirituel'] ?? 50,
-        $a['emprise_reptilienne'] ?? 30, $a['kvorz'] ?? 20, $a['niveau_eveil'] ?? 50,
-        $elems['terre'] ?? 50, $elems['eau'] ?? 50, $elems['feu'] ?? 50, $elems['air'] ?? 50, $elems['ether'] ?? 50,
-        $a['evacuation_eligible'] ? 1 : 0, $a['evacuation_percent'] ?? 0, $a['evacuation_note'] ?? '—',
-        $a['geo_forme'] ?? '—', $a['geo_nombre'] ?? '—', $a['geo_cristal'] ?? '—', $a['geo_portail'] ?? '—',
-        $a['ego'] ?? 50, $a['humilite'] ?? 50, $a['fierte'] ?? 50,
-        $a['intentions'] ?? 'INDÉTERMINÉ', json_encode($a['themes'] ?? []), json_encode($a['keywords'] ?? []),
-        $a['verbe_parole'] ?? '—', $a['verbe_action'] ?? '—', $a['verbe_creation'] ?? '—',
-        $a['astro_ascendant'] ?? '—', $a['astro_lunaire'] ?? '—', $a['astro_solaire'] ?? '—',
-        json_encode($a),
+        $a['sentiment'] ?? 'neutre', $a['sentiment_score'] ?? 50,
+        $a['emotion_primary'] ?? '', $a['emotion_secondary'] ?? '', $a['tone'] ?? '',
+        $a['style_formal'] ?? 50, $a['style_assertive'] ?? 50, $a['style_creative'] ?? 50,
+        $b['complexity'] ?? 50, $b['vocabulary_richness'] ?? 50,
+        $avg, $wc,
+        json_encode($b['themes'] ?? []), json_encode($b['keywords'] ?? []),
+        $b['intent'] ?? '', json_encode($b['language_patterns'] ?? []),
+        json_encode($b['rhetorical_devices'] ?? []),
+        $b['cognitive_load'] ?? 50, $b['information_density'] ?? 50,
+        substr_count($text, '?'), $b['certainty_level'] ?? 50,
+        json_encode($a), json_encode($b),
     ]);
 }
 
@@ -167,5 +147,8 @@ function get_session_stats(string $session): array {
     $m  = $db->prepare("SELECT COUNT(*) as cnt, SUM(tokens_in+tokens_out) as tok FROM messages WHERE session_id=?");
     $m->execute([$session]);
     $ms = $m->fetch(PDO::FETCH_ASSOC);
-    return $ms ?? [];
+    $a  = $db->prepare("SELECT AVG(sentiment_score) as avg_sent, AVG(complexity) as avg_cpx, AVG(cognitive_load) as avg_cog FROM analyses WHERE session_id=?");
+    $a->execute([$session]);
+    $as = $a->fetch(PDO::FETCH_ASSOC);
+    return array_merge($ms ?? [], $as ?? []);
 }
