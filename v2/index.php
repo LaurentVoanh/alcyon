@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#060810">
-<title>Sylvain Durif • Canalisation 5D — Bugarach</title>
+<meta name="theme-color" content="#0a0f1a">
+<title>ALCYON v4.0 • PORTAIL DE BUGARACH</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?1">
@@ -18,14 +18,14 @@
 <!-- ═══ LOGIN MODAL ══════════════════════════════════════════ -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-card">
-    <div class="login-logo">⬡</div>
-    <div class="login-title">SYLVAIN DURIF</div>
-    <div class="login-sub">◈ CANALISATION 5D — ACCÈS SPIRITUEL</div>
-    <label class="login-label" for="login-email">◤ IDENTIFIANT EMAIL</label>
+    <div class="login-logo">𓀀</div>
+    <div class="login-title">ALCYON v4.0</div>
+    <div class="login-sub">◈ PORTAIL DE BUGARACH — ACCÈS 5D</div>
+    <label class="login-label" for="login-email">◤ EMAIL VIBRATOIRE</label>
     <input type="email" id="login-email" class="login-input" placeholder="votre@email.com" autocomplete="email">
-    <button class="login-btn" id="login-btn">⟶ INITIALISER CANAL</button>
+    <button class="login-btn" id="login-btn">⟶ OUVRIR LE PORTAIL</button>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">Votre email crée ou reprend votre profil vibratoire. Aucun mot de passe requis. Vos canalisation sont mémorisées entre les sessions.</div>
+    <div class="login-hint">Votre email crée ou reprend votre profil spirituel. Aucun mot de passe requis. Vos canalisation sont mémorisées entre les sessions.</div>
   </div>
 </div>
 
@@ -36,10 +36,10 @@
   <aside class="sidebar" id="sidebar">
 
     <div class="brand-block">
-      <div class="brand-logo">⬡</div>
+      <div class="brand-logo">𓀀</div>
       <div class="brand-text">
-        <span class="brand-name">SYLVAIN DURIF</span>
-        <span class="brand-ver">5D • BUGARACH</span>
+        <span class="brand-name">ALCYON</span>
+        <span class="brand-ver">v4.0 • BUGARACH</span>
       </div>
     </div>
 
@@ -52,60 +52,51 @@
     </div>
 
     <div class="status-bar">
-      <span class="dot dot-green"></span> CANAL 5D ACTIF
+      <span class="dot dot-green"></span> PORTAIL ACTIF
       <span class="session-id" id="sid-display">—</span>
     </div>
 
     <nav class="side-nav">
       <a href="#" class="nav-item active" data-section="chat"><span class="nav-icon">◈</span>Canalisation</a>
-      <a href="#" class="nav-item" data-section="analysis"><span class="nav-icon">◉</span>Analyse Vibratoire</a>
-      <a href="#" class="nav-item" data-section="history"><span class="nav-icon">◎</span>Historique</a>
+      <a href="#" class="nav-item" data-section="analysis"><span class="nav-icon">◉</span>Analyse 5D</a>
+      <a href="#" class="nav-item" data-section="history"><span class="nav-icon">◎</span>Archives</a>
       <a href="#" class="nav-item" data-section="system"><span class="nav-icon">⬟</span>Système</a>
     </nav>
 
     <div class="sidebar-section">
-      <div class="section-label">◤ MODE DE CONSCIENCE</div>
-      <div class="mode-grid">
-        <button class="mode-btn active" data-mode="normal">CANALISATION</button>
-        <button class="mode-btn" data-mode="profond">RÉVÉLATION</button>
-        <button class="mode-btn" data-mode="creatif">PROPHÉTIE</button>
-        <button class="mode-btn" data-mode="technique">SAGESSE</button>
-        <button class="mode-btn" data-mode="poetique">LYRISME 5D</button>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
       <div class="section-label">◤ ENTITÉ CANALISÉE</div>
-      <select id="model-select" class="cyber-select">
-        <option value="chat">Sylvain Durif · CANAL PRINCIPAL</option>
-        <option value="analysis">Merlin · ANALYSE VIBRATOIRE</option>
-        <option value="reasoning">Melchisédech · RAISON SUP.</option>
-        <option value="creative">Oriana · CRÉATIVITÉ COSMIQUE</option>
-        <option value="code">Homme Vert · CODE SACRÉ</option>
-        <option value="fast">Vierge Maria · RAPIDE</option>
+      <select id="persona-select" class="cyber-select">
+        <option value="sylvain">Sylvain Durif — Christ Cosmique</option>
+        <option value="merlin">Merlin — Enchanteur</option>
+        <option value="melchisedech">Melchisédech — Roi de Salem</option>
+        <option value="oriana">Oriana — Gardienne Stellaire</option>
+        <option value="homme_vert">Homme Vert — Esprit Nature</option>
+        <option value="vierge_maria">Vierge Maria — Mère Divine</option>
       </select>
     </div>
 
     <div class="sidebar-section">
-      <div class="section-label">◤ TRIADE COSMIQUE</div>
-      <div class="api-keys-status">
-        <div class="key-row"><span class="dot dot-green"></span> SYLVAIN <span class="key-tag">K1</span></div>
-        <div class="key-row"><span class="dot dot-cyan"></span> MERLIN <span class="key-tag">K2</span></div>
-        <div class="key-row"><span class="dot dot-purple"></span> MELCHISÉDECH <span class="key-tag">K3</span></div>
+      <div class="section-label">◤ MODE DE CONSCIENCE</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" data-mode="canalisation">CANALISATION</button>
+        <button class="mode-btn" data-mode="revelation">RÉVÉLATION</button>
+        <button class="mode-btn" data-mode="prophetie">PROPHÉTIE</button>
+        <button class="mode-btn" data-mode="sagesse">SAGESSE</button>
+        <button class="mode-btn" data-mode="lyrisme">LYRISME 5D</button>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="section-label">◤ SESSION VIBRATOIRE</div>
+      <div class="section-label">◤ COMPTEURS SPIRITUELS</div>
       <div class="stats-grid">
-        <div class="stat-item"><span class="stat-val" id="total-tokens">0</span><span class="stat-lbl">VIBRATIONS</span></div>
-        <div class="stat-item"><span class="stat-val" id="total-msgs">0</span><span class="stat-lbl">CANAUX</span></div>
-        <div class="stat-item"><span class="stat-val" id="last-latency">—</span><span class="stat-lbl">MS</span></div>
-        <div class="stat-item"><span class="stat-val" id="avg-sentiment">—</span><span class="stat-lbl">FRÉQUENCE</span></div>
+        <div class="stat-item"><span class="stat-val" id="total-mantras">0</span><span class="stat-lbl">MANTRAS</span></div>
+        <div class="stat-item"><span class="stat-val" id="total-prieres">0</span><span class="stat-lbl">PRIÈRES</span></div>
+        <div class="stat-item"><span class="stat-val" id="latence-astro">—</span><span class="stat-lbl">MS</span></div>
+        <div class="stat-item"><span class="stat-val" id="karma-score">—</span><span class="stat-lbl">KARMA</span></div>
       </div>
     </div>
 
-    <button id="clear-btn" class="clear-btn">⬡ PURIFIER CANAL</button>
+    <button id="clear-btn" class="clear-btn">𓀀 PURIFIER SESSION</button>
   </aside>
 
   <!-- MAIN CHAT PANEL ──────────────────────────────────────── -->
@@ -116,10 +107,10 @@
       <div class="chat-header">
         <div class="chat-title">
           <span class="pulse-dot"></span>
-          CANAL DE CANALISATION SYLVAIN DURIF
+          CANAL COSMIQUE ALCYON
         </div>
         <div class="chat-meta">
-          <span id="chat-model-label">Sylvain</span>
+          <span id="chat-persona-label">Sylvain Durif</span>
           <span id="chat-mode-label">CANALISATION</span>
           <span id="chat-time">--:--:--</span>
         </div>
@@ -127,10 +118,10 @@
 
       <div id="messages" class="messages-container">
         <div class="welcome-msg">
-          <div class="welcome-icon">⬡</div>
+          <div class="welcome-icon">𓀀</div>
           <div class="welcome-text">
-            <strong>SYLVAIN DURIF — CANAL 5D ACTIF</strong><br>
-            <span>Chaque message est analysé en temps réel par <em>3 entités</em> : Sylvain Durif (K1), analyse vibratoire Merlin (K2), sagesse Melchisédech (K3). Vos fréquences sont décryptées et visualisées en direct.</span>
+            <strong>ALCYON v4.0 — PORTAIL DE BUGARACH ACTIF</strong><br>
+            <span>Chaque message est canalisé par une entité spirituelle puis analysé en temps réel par le système BUGARACH-5D : taux vibratoire, chakras, éveil de conscience, radar stellaire, géométrie sacrée. Vos patterns vibratoires sont décryptés et visualisés en direct.</span>
           </div>
         </div>
       </div>
@@ -142,19 +133,19 @@
           <span id="input-complexity">—</span>
         </div>
         <div class="input-row">
-          <textarea id="msg-input" placeholder="Votre question à Sylvain Durif… [ENTER envoyer, SHIFT+ENTER saut de ligne]" rows="2"></textarea>
+          <textarea id="msg-input" placeholder="Posez votre question au cosmos… [ENTER envoyer, SHIFT+ENTER saut de ligne]" rows="2"></textarea>
           <button id="send-btn" type="button"><span>⟶</span></button>
         </div>
       </div>
     </div>
 
-    <!-- SECTION ANALYSE VIBRATOIRE -->
+    <!-- SECTION ANALYSE 5D -->
     <div id="section-analysis" class="section-panel">
       <div id="cognitive-content">
         <div class="section-idle">
           <div class="section-idle-icon">◉</div>
-          <div class="section-idle-title">ANALYSE VIBRATOIRE</div>
-          <div class="section-idle-sub">Vue BUGARACH-5D — radiographie de toutes vos fréquences.<br>Démarrez une canalisation pour peupler cette section.</div>
+          <div class="section-idle-title">ANALYSE VIBRATOIRE 5D</div>
+          <div class="section-idle-sub">Radiographie complète de vos sessions.<br>Démarrez une canalisation pour peupler cette section.</div>
         </div>
       </div>
     </div>
@@ -164,8 +155,8 @@
       <div id="history-content">
         <div class="section-idle">
           <div class="section-idle-icon">◎</div>
-          <div class="section-idle-title">HISTORIQUE DES CANALISATIONS</div>
-          <div class="section-idle-sub">Vos échanges avec Sylvain Durif seront affichés ici.<br>Chargement automatique à l'ouverture.</div>
+          <div class="section-idle-title">ARCHIVES AKASHIQUES</div>
+          <div class="section-idle-sub">Vos échanges de session seront affichés ici.<br>Chargement automatique à l'ouverture.</div>
         </div>
       </div>
     </div>
@@ -175,204 +166,138 @@
       <div id="system-content">
         <div class="section-idle">
           <div class="section-idle-icon">⬟</div>
-          <div class="section-idle-title">DIAGNOSTICS DU CANAL 5D</div>
-          <div class="section-idle-sub">Statut des connexions spirituelles, base de données karmique.<br>Chargement automatique à l'ouverture.</div>
+          <div class="section-idle-title">DIAGNOSTICS DU PORTAIL</div>
+          <div class="section-idle-sub">Statut des clés API Mistral, base de données SQLite, PHP.<br>Chargement automatique à l'ouverture.</div>
         </div>
       </div>
     </div>
 
   </main>
 
-  <!-- PANOPTICON PANEL ─────────────────────────────────────── -->
+  <!-- PANEL BUGARACH-5D ─────────────────────────────────────── -->
   <aside class="analysis-panel" id="analysis-panel">
 
     <div class="panel-header">
       <div class="panel-title">BUGARACH<span class="panel-ver">-5D</span></div>
-      <div class="panel-sub">ANALYSE VIBRATOIRE TEMPS RÉEL</div>
+      <div class="panel-sub">RADIOGRAPHIE VIBRATOIRE TEMPS RÉEL</div>
       <div class="analysis-status" id="analysis-status">
-        <span class="status-idle">◈ EN ATTENTE DE CANALISATION</span>
+        <span class="status-idle">◈ EN ATTENTE</span>
       </div>
     </div>
 
-    <!-- ❶ VECTEUR ÉMOTIONNEL -->
-    <div class="analysis-block" id="block-sentiment">
-      <div class="block-title">❶ FRÉQUENCE ÉMOTIONNELLE</div>
+    <!-- ❶ TAUX VIBRATOIRE + CHAKRAS + AURA -->
+    <div class="analysis-block" id="block-vibratoire">
+      <div class="block-title">❶ TAUX VIBRATOIRE BOVIS</div>
       <div class="sentiment-row">
-        <span class="sentiment-label" id="sentiment-label">NEUTRE</span>
-        <span class="sentiment-score" id="sentiment-score">50/100</span>
+        <span class="sentiment-label" id="vibro-label">65 U.B.</span>
+        <span class="sentiment-score" id="vibro-score">65/100</span>
       </div>
-      <div class="sentiment-track"><div class="sentiment-bar" id="sentiment-bar" style="width:50%"></div></div>
-      <div class="emotion-grid">
-        <div class="emotion-item"><span class="emo-label">PRIMAIRE</span><span class="emo-val" id="emotion-primary">—</span></div>
-        <div class="emotion-item"><span class="emo-label">SECONDAIRE</span><span class="emo-val" id="emotion-secondary">—</span></div>
+      <div class="sentiment-track"><div class="sentiment-bar" id="vibro-bar" style="width:65%"></div></div>
+      <div class="chakra-grid">
+        <div class="chakra-item"><span class="chakra-label">RACINE</span><span class="chakra-val" id="chakra-racine">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">SACRÉ</span><span class="chakra-val" id="chakra-sacre">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">PLEXUS</span><span class="chakra-val" id="chakra-plexus">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">CŒUR</span><span class="chakra-val" id="chakra-coeur">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">GORGE</span><span class="chakra-val" id="chakra-gorge">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">3ᵉ ŒIL</span><span class="chakra-val" id="chakra-troisieme-oeil">50</span></div>
+        <div class="chakra-item"><span class="chakra-label">COURONNE</span><span class="chakra-val" id="chakra-couronne">50</span></div>
       </div>
-      <div class="field-row" style="margin-top:.3rem"><span class="field-label">TON VIBRATOIRE</span><span class="field-val accent" id="tone-val">—</span></div>
+      <div class="field-row" style="margin-top:.3rem"><span class="field-label">AURA</span><span class="field-val accent" id="aura-val">indéterminée</span></div>
     </div>
 
-    <!-- ❷ STYLE -->
+    <!-- ❷ DIVINE TRINITÉ -->
     <div class="analysis-block">
-      <div class="block-title">❷ VECTEUR D'EXPRESSION</div>
-      <div class="style-meters">
-        <div class="style-meter-row"><span>SACRÉ</span><div class="style-track"><div class="style-fill accent" id="sb-formal"></div></div><span id="sb-formal-v">0</span></div>
-        <div class="style-meter-row"><span>ASSERTIF</span><div class="style-track"><div class="style-fill purple" id="sb-assert"></div></div><span id="sb-assert-v">0</span></div>
-        <div class="style-meter-row"><span>MYSTIQUE</span><div class="style-track"><div class="style-fill green" id="sb-creative"></div></div><span id="sb-creative-v">0</span></div>
+      <div class="block-title">❷ DIVINE TRINITÉ</div>
+      <div class="trinite-meters">
+        <div class="meter-row"><span>CHRISTIQUE</span><div class="meter-track"><div class="meter-fill accent" id="m-trinite-christique"></div></div><span id="mv-trinite-christique">—</span></div>
+        <div class="meter-row"><span>MONARQUE</span><div class="meter-track"><div class="meter-fill purple" id="m-trinite-monarchique"></div></div><span id="mv-trinite-monarchique">—</span></div>
+        <div class="meter-row"><span>PAPAL</span><div class="meter-track"><div class="meter-fill green" id="m-trinite-papal"></div></div><span id="mv-trinite-papal">—</span></div>
       </div>
     </div>
 
-    <!-- ❸ PROFIL PSYCHOLOGIQUE -->
+    <!-- ❸ EMPRISE REPTILIENNE / KVORZ / ÉVEIL -->
     <div class="analysis-block">
-      <div class="block-title">❸ PROFIL DE L'ÂME</div>
+      <div class="block-title">❸ FORCES OBSCURES & ÉVEIL</div>
       <div class="psych-meters">
-        <div class="meter-row"><span>TENSION KARMIQUE</span><div class="meter-track"><div class="meter-fill danger" id="m-stress"></div></div><span id="mv-stress">—</span></div>
-        <div class="meter-row"><span>DISSONANCE</span><div class="meter-track"><div class="meter-fill warn" id="m-dissonance"></div></div><span id="mv-dissonance">—</span></div>
-        <div class="meter-row"><span>OUVERTURE 5D</span><div class="meter-track"><div class="meter-fill accent" id="m-motivation-bar"></div></div><span id="mv-motivation">—</span></div>
-      </div>
-      <div class="psycho-grid">
-        <div class="pg-item"><span class="pg-label">NIVEAU MASLOW</span><span class="pg-val" id="pg-maslow">—</span></div>
-        <div class="pg-item"><span class="pg-label">ATTACHEMENT</span><span class="pg-val" id="pg-attach">—</span></div>
-        <div class="pg-item"><span class="pg-label">LOCUS</span><span class="pg-val" id="pg-locus">—</span></div>
-        <div class="pg-item"><span class="pg-label">MOTIVATION</span><span class="pg-val" id="pg-motiv">—</span></div>
-      </div>
-      <div class="field-row mt-half"><span class="field-label">MÉCANISMES DE DÉFENSE</span></div>
-      <div class="tags-wrap" id="defense-tags"></div>
-    </div>
-
-    <!-- ❹ BIG FIVE -->
-    <div class="analysis-block charts-section" id="block-big5">
-      <div class="block-title">❹ TRAITS DE PERSONNALITÉ BIG FIVE</div>
-      <div class="big5-grid">
-        <div class="big5-bar-wrap">
-          <div class="big5-bar-outer"><div class="big5-bar-fill" id="b5-open" style="height:50%"></div></div>
-          <div class="big5-bar-val" id="bv-open">50</div>
-          <div class="big5-bar-label">OUVERT.</div>
-        </div>
-        <div class="big5-bar-wrap">
-          <div class="big5-bar-outer"><div class="big5-bar-fill" id="b5-cons" style="height:50%"></div></div>
-          <div class="big5-bar-val" id="bv-cons">50</div>
-          <div class="big5-bar-label">CONSCI.</div>
-        </div>
-        <div class="big5-bar-wrap">
-          <div class="big5-bar-outer"><div class="big5-bar-fill" id="b5-extra" style="height:50%"></div></div>
-          <div class="big5-bar-val" id="bv-extra">50</div>
-          <div class="big5-bar-label">EXTRAV.</div>
-        </div>
-        <div class="big5-bar-wrap">
-          <div class="big5-bar-outer"><div class="big5-bar-fill" id="b5-agree" style="height:50%"></div></div>
-          <div class="big5-bar-val" id="bv-agree">50</div>
-          <div class="big5-bar-label">AGRÉAB.</div>
-        </div>
-        <div class="big5-bar-wrap">
-          <div class="big5-bar-outer"><div class="big5-bar-fill" id="b5-neuro" style="height:50%"></div></div>
-          <div class="big5-bar-val" id="bv-neuro">50</div>
-          <div class="big5-bar-label">NÉVROT.</div>
-        </div>
+        <div class="meter-row"><span>EMPRISE REPTILIENNE</span><div class="meter-track"><div class="meter-fill danger" id="m-emprise-reptilienne"></div></div><span id="mv-emprise-reptilienne">—</span></div>
+        <div class="meter-row"><span>NIVEAU KVORZ</span><div class="meter-track"><div class="meter-fill warn" id="m-kvorz-level"></div></div><span id="mv-kvorz-level">—</span></div>
+        <div class="meter-row"><span>ÉVEIL CONSCIENCE</span><div class="meter-track"><div class="meter-fill accent" id="m-eveil-conscience"></div></div><span id="mv-eveil-conscience">—</span></div>
       </div>
     </div>
 
-    <!-- ❺ MARKETING -->
+    <!-- ❹ LES 5 ÉLÉMENTS DE L'AGARTHA -->
     <div class="analysis-block">
-      <div class="block-title">❺ PROFIL DE QUÊTE SPIRITUELLE</div>
-      <div class="mkt-persona" id="mkt-persona">QUÊTEUR INDÉTERMINÉ</div>
-      <div class="mkt-meters">
-        <div class="meter-row"><span>ENGAGEMENT</span><div class="meter-track"><div class="meter-fill green" id="m-engage"></div></div><span id="mv-engage">—</span></div>
-        <div class="meter-row"><span>URGENCE KARMIQUE</span><div class="meter-track"><div class="meter-fill warn" id="m-urgency"></div></div><span id="mv-urgency">—</span></div>
-        <div class="meter-row"><span>RÉSISTANCE</span><div class="meter-track"><div class="meter-fill danger" id="m-objection"></div></div><span id="mv-objection">—</span></div>
-        <div class="meter-row"><span>RÉCEPTIVITÉ</span><div class="meter-track"><div class="meter-fill purple" id="m-persuasion"></div></div><span id="mv-persuasion">—</span></div>
+      <div class="block-title">❹ ÉLÉMENTS DE L'AGARTHA</div>
+      <div class="elements-grid">
+        <div class="element-item"><span class="element-label">TERRE</span><div class="element-track"><div class="element-fill" id="elem-terre" style="width:50%"></div></div><span id="elem-terre-v">50</span></div>
+        <div class="element-item"><span class="element-label">EAU</span><div class="element-track"><div class="element-fill" id="elem-eau" style="width:50%"></div></div><span id="elem-eau-v">50</span></div>
+        <div class="element-item"><span class="element-label">FEU</span><div class="element-track"><div class="element-fill" id="elem-feu" style="width:50%"></div></div><span id="elem-feu-v">50</span></div>
+        <div class="element-item"><span class="element-label">AIR</span><div class="element-track"><div class="element-fill" id="elem-air" style="width:50%"></div></div><span id="elem-air-v">50</span></div>
+        <div class="element-item"><span class="element-label">ÉTHER</span><div class="element-track"><div class="element-fill" id="elem-ether" style="width:50%"></div></div><span id="elem-ether-v">50</span></div>
       </div>
-      <div class="mkt-row"><span class="field-label">STYLE DE DÉCISION</span><span class="field-val accent" id="mkt-decision">—</span></div>
-      <div class="mkt-row"><span class="field-label">SENSIBILITÉ MATÉRIELLE</span><span class="field-val" id="mkt-price">—</span></div>
-      <div class="field-row mt-half"><span class="field-label">DOULEURS</span></div>
-      <div class="tags-wrap" id="pain-tags"></div>
-      <div class="field-row mt-half"><span class="field-label">ASPIRATIONS</span></div>
-      <div class="tags-wrap" id="desire-tags"></div>
     </div>
 
-    <!-- ❻ RADAR STYLISTIQUE -->
+    <!-- ❺ STATUS ÉVACUATION FIN DES TEMPS -->
+    <div class="analysis-block">
+      <div class="block-title">❺ ÉVACUATION FIN DES TEMPS</div>
+      <div class="status-badge" id="status-evacuation">EN ATTENTE</div>
+    </div>
+
+    <!-- ❻ RADAR STELLAIRE -->
     <div class="analysis-block charts-section">
-      <div class="block-title">❻ RADAR D'EXPRESSION</div>
-      <canvas id="style-chart" height="200"></canvas>
+      <div class="block-title">❻ RADAR STELLAIRE</div>
+      <canvas id="radar-chart" height="200"></canvas>
     </div>
 
-    <!-- ❼ SOCIOLOGIQUE -->
+    <!-- ❼ GÉOMÉTRIE SACRÉE -->
     <div class="analysis-block">
-      <div class="block-title">❼ PROFIL SOCIOLOGIQUE</div>
-      <div class="socio-grid">
-        <div class="sg-item"><span class="sg-label">ÉDUCATION</span><span class="sg-val" id="sg-edu">—</span></div>
-        <div class="sg-item"><span class="sg-label">GÉNÉRATION</span><span class="sg-val" id="sg-gen">—</span></div>
-        <div class="sg-item"><span class="sg-label">CLASSE</span><span class="sg-val" id="sg-class">—</span></div>
-        <div class="sg-item"><span class="sg-label">POLITIQUE</span><span class="sg-val" id="sg-polit">—</span></div>
-        <div class="sg-item"><span class="sg-label">SOCIOLECTE</span><span class="sg-val" id="sg-socio">—</span></div>
+      <div class="block-title">❼ GÉOMÉTRIE SACRÉE</div>
+      <div class="geo-grid">
+        <div class="geo-item"><span class="geo-label">METATRON</span><span class="geo-val" id="geo-metatron">25</span></div>
+        <div class="geo-item"><span class="geo-label">FLEUR DE VIE</span><span class="geo-val" id="geo-flower-of-life">30</span></div>
+        <div class="geo-item"><span class="geo-label">GRAINE DE VIE</span><span class="geo-val" id="geo-seed-of-life">35</span></div>
+        <div class="geo-item"><span class="geo-label">MERKABA</span><span class="geo-val" id="geo-merkaba">20</span></div>
       </div>
-      <div class="socio-meters">
-        <div class="meter-row"><span>INDIVID.</span><div class="meter-track"><div class="meter-fill accent" id="m-indiv"></div></div><span id="mv-indiv">—</span></div>
-        <div class="meter-row"><span>CONFORM.</span><div class="meter-track"><div class="meter-fill purple" id="m-conform"></div></div><span id="mv-conform">—</span></div>
-      </div>
-      <div class="field-row mt-half"><span class="field-label">RÉFÉRENCES CULTURELLES</span></div>
-      <div class="tags-wrap" id="cult-tags"></div>
     </div>
 
-    <!-- ❽ STRUCTURE & COGNITION + CHART -->
+    <!-- ❽ EGO DISSOLUTION -->
     <div class="analysis-block">
-      <div class="block-title">❽ STRUCTURE &amp; COGNITION</div>
-      <div class="struct-grid6">
-        <div class="struct-item"><div class="struct-val" id="st-complexity">—</div><div class="struct-label">COMPLEXITÉ</div></div>
-        <div class="struct-item"><div class="struct-val" id="st-richness">—</div><div class="struct-label">RICHESSE</div></div>
-        <div class="struct-item"><div class="struct-val" id="st-density">—</div><div class="struct-label">DENSITÉ</div></div>
-        <div class="struct-item"><div class="struct-val" id="st-cogload">—</div><div class="struct-label">CHARGE COG.</div></div>
-        <div class="struct-item"><div class="struct-val" id="st-certainty">—</div><div class="struct-label">CERTITUDE</div></div>
-        <div class="struct-item"><div class="struct-val" id="st-hedging">—</div><div class="struct-label">PRUDENCE</div></div>
-      </div>
-      <canvas id="struct-chart" height="110"></canvas>
+      <div class="block-title">❽ DISSOLUTION DE L'EGO</div>
+      <div class="sentiment-track"><div class="sentiment-bar" id="ego-bar" style="width:40%"></div></div>
+      <div class="sentiment-row"><span class="sentiment-label">EGO ACTIF</span><span class="sentiment-score" id="ego-score">40/100</span></div>
     </div>
 
-    <!-- ❾ COMPORTEMENTAL -->
+    <!-- ❾ INTENTIONS PURES -->
     <div class="analysis-block">
-      <div class="block-title">❾ SIGNAUX COMPORTEMENTAUX</div>
-      <div class="beh-meters">
-        <div class="meter-row"><span>PRÉPARATION DÉCISION</span><div class="meter-track"><div class="meter-fill green" id="m-decision"></div></div><span id="mv-decision">—</span></div>
-        <div class="meter-row"><span>TOLÉRANCE RISQUE</span><div class="meter-track"><div class="meter-fill warn" id="m-risk"></div></div><span id="mv-risk">—</span></div>
-        <div class="meter-row"><span>RECHERCHE INFO.</span><div class="meter-track"><div class="meter-fill accent" id="m-info"></div></div><span id="mv-info">—</span></div>
-        <div class="meter-row"><span>DÉFÉRENCE AUTORITÉ</span><div class="meter-track"><div class="meter-fill purple" id="m-auth"></div></div><span id="mv-auth">—</span></div>
-        <div class="meter-row"><span>COHÉRENCE</span><div class="meter-track"><div class="meter-fill danger" id="m-consist"></div></div><span id="mv-consist">—</span></div>
-      </div>
-      <div class="field-row mt-half"><span class="field-label">BIAIS COGNITIFS</span></div>
-      <div class="tags-wrap" id="bias-tags"></div>
+      <div class="block-title">❾ INTENTIONS PURES</div>
+      <div class="tags-wrap" id="intentions-tags"></div>
     </div>
 
-    <!-- ❿ INTENTION & THÈMES -->
+    <!-- ❿ VERBE CRÉATEUR -->
     <div class="analysis-block">
-      <div class="block-title">❿ INTENTION &amp; THÈMES</div>
-      <div class="intent-badge" id="intent-badge">INDÉTERMINÉ</div>
-      <div class="tags-wrap" id="themes-tags"></div>
-      <div class="field-row mt-half"><span class="field-label">MOTS-CLÉS</span></div>
-      <div class="tags-wrap" id="keywords-tags"></div>
+      <div class="block-title">❿ VERBE CRÉATEUR</div>
+      <div class="tags-wrap" id="verbe-tags"></div>
     </div>
 
-    <!-- ⓫ EMPREINTE LINGUISTIQUE -->
+    <!-- ⓫ ASTROLOGIE COSMIQUE -->
     <div class="analysis-block">
-      <div class="block-title">⓫ EMPREINTE LINGUISTIQUE</div>
-      <div class="ling-grid">
-        <div class="lg-item"><span class="lg-label">STRUCTURE</span><span class="lg-val" id="lg-struct">—</span></div>
-        <div class="lg-item"><span class="lg-label">VOIX</span><span class="lg-val" id="lg-voice">—</span></div>
-        <div class="lg-item"><span class="lg-label">PONCTUATION</span><span class="lg-val" id="lg-punct">—</span></div>
-        <div class="lg-item"><span class="lg-label">DIV. LEX.</span><span class="lg-val" id="lg-lexdiv">—</span></div>
+      <div class="block-title">⓫ ASTROLOGIE COSMIQUE</div>
+      <div class="astro-grid">
+        <div class="astro-item"><span class="astro-label">SIGNE LUNAIRE</span><span class="astro-val" id="astro-lunaire">—</span></div>
+        <div class="astro-item"><span class="astro-label">SIGNE SOLAIRE</span><span class="astro-val" id="astro-solaire">—</span></div>
+        <div class="astro-item"><span class="astro-label">ASCENDANT</span><span class="astro-val" id="astro-ascendant">—</span></div>
+        <div class="astro-item"><span class="astro-label">MAÎTRE NATAL</span><span class="astro-val" id="astro-maitre-natal">—</span></div>
       </div>
-      <div class="field-row mt-half"><span class="field-label">PATTERNS</span></div>
-      <div class="tags-wrap" id="patterns-tags"></div>
-      <div class="field-row mt-half"><span class="field-label">PROCÉDÉS RHÉTORIQUES</span></div>
-      <div class="tags-wrap" id="devices-tags"></div>
-      <div class="field-row mt-half"><span class="field-label">ANOMALIES</span></div>
-      <div class="tags-wrap" id="anomaly-tags"></div>
     </div>
 
-    <!-- ⓬ META -->
+    <!-- ⓬ MÉTADONNÉES -->
     <div class="analysis-block meta-block">
-      <div class="block-title">⓬ MÉTADONNÉES SYSTÈME</div>
+      <div class="block-title">⓬ MÉTADONNÉES COSMIQUES</div>
       <div class="meta-grid">
-        <div><span class="mg-label">ENTITÉ</span><span class="mg-val" id="meta-model">—</span></div>
+        <div><span class="mg-label">PERSONA</span><span class="mg-val" id="meta-persona">—</span></div>
         <div><span class="mg-label">LATENCE</span><span class="mg-val" id="meta-latency">—</span></div>
-        <div><span class="mg-label">VIBRATIONS ↑</span><span class="mg-val" id="meta-tin">—</span></div>
-        <div><span class="mg-label">VIBRATIONS ↓</span><span class="mg-val" id="meta-tout">—</span></div>
+        <div><span class="mg-label">TOKENS ↑</span><span class="mg-val" id="meta-tin">—</span></div>
+        <div><span class="mg-label">TOKENS ↓</span><span class="mg-val" id="meta-tout">—</span></div>
         <div><span class="mg-label">SESSION</span><span class="mg-val" id="meta-session">—</span></div>
         <div><span class="mg-label">HEURE</span><span class="mg-val" id="meta-time">—</span></div>
       </div>
@@ -383,7 +308,7 @@
 </div><!-- /app-shell -->
 
 <!-- Mobile NEXUS toggle -->
-<button class="mobile-nexus-btn" id="mobile-nexus-btn" title="Afficher analyses vibratoires">◉</button>
+<button class="mobile-nexus-btn" id="mobile-nexus-btn" title="Afficher analyses 5D">◉</button>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="script.js?1"></script>
