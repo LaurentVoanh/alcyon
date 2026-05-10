@@ -1,0 +1,302 @@
+/* ═══════════════════════════════════════════════════════════
+   ALCYON MOBILE — STYLE OPTIMISÉ SMARTPHONE
+   Thème: Sylvain Durif / Ésotérique / 5D
+═══════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:        #0a0f1a;
+  --bg2:       #0d1220;
+  --panel:     #0f1525;
+  --border:    #1a2540;
+  --text:      #c8d8f8;
+  --text-dim:  #4a5a80;
+  --accent:    #00e5ff;
+  --accent2:   #7c3aed;
+  --danger:    #ef4444;
+  --user-bg:   #1a2a4a;
+  --ai-bg:     #0f1a30;
+  --glow:      0 0 15px rgba(0,229,255,.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Rajdhani', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+.scanlines {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+  opacity: .3;
+}
+
+/* ═══ LOGIN ═══════════════════════════════════════════════ */
+.login-overlay {
+  position: fixed; inset: 0; background: rgba(5,8,15,.95);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10000; padding: 1.5rem;
+}
+.login-overlay.hidden { display: none; }
+
+.login-card {
+  background: linear-gradient(135deg, var(--panel), var(--bg2));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  width: 100%; max-width: 340px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+}
+
+.login-logo { font-size: 3rem; color: var(--accent); filter: drop-shadow(0 0 10px var(--accent)); margin-bottom: .5rem; }
+.login-title { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-bottom: .25rem; }
+.login-sub { font-size: .75rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+
+.login-label { display: block; text-align: left; font-size: .7rem; color: var(--text-dim); margin-bottom: .5rem; }
+.login-input {
+  width: 100%; padding: .9rem; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg2); color: var(--text);
+  font-family: 'Rajdhani', sans-serif; font-size: 1rem; margin-bottom: 1rem;
+}
+.login-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
+
+.login-btn {
+  width: 100%; padding: 1rem; border: none; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700;
+  font-size: .9rem; cursor: pointer; transition: all .3s;
+}
+.login-btn:disabled { opacity: .5; }
+
+.login-error { color: var(--danger); font-size: .75rem; margin-top: .75rem; min-height: 1rem; }
+.login-hint { font-size: .65rem; color: var(--text-dim); margin-top: 1rem; line-height: 1.4; }
+
+/* ═══ APP CONTAINER ═══════════════════════════════════════ */
+.app-container {
+  display: flex; flex-direction: column;
+  height: 100vh; height: 100dvh;
+  position: relative;
+}
+
+/* ═══ HEADER ══════════════════════════════════════════════ */
+.mobile-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1rem;
+  background: linear-gradient(135deg, var(--panel), var(--bg2));
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.header-left { display: flex; align-items: center; gap: .5rem; }
+.brand-logo { font-size: 1.5rem; color: var(--accent); filter: drop-shadow(0 0 8px var(--accent)); }
+.brand-name { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--accent); font-size: 1rem; }
+
+.header-center { flex: 1; text-align: center; }
+.persona-badge {
+  font-size: .7rem; color: var(--accent2);
+  background: rgba(124,58,237,.1);
+  padding: .25rem .75rem; border-radius: 12px;
+  border: 1px solid rgba(124,58,237,.3);
+}
+
+.header-right { }
+.menu-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text); font-size: 1.25rem; padding: .4rem .6rem;
+  border-radius: 6px; cursor: pointer;
+}
+
+/* ═══ CHAT AREA ═══════════════════════════════════════════ */
+.chat-area {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: .75rem; scroll-behavior: smooth;
+}
+
+.messages-container { display: flex; flex-direction: column; gap: .75rem; }
+
+.welcome-msg {
+  display: flex; align-items: center; gap: .75rem;
+  padding: 1rem; background: rgba(0,229,255,.05);
+  border: 1px solid rgba(0,229,255,.2); border-radius: 12px;
+  margin-bottom: .5rem;
+}
+.welcome-icon { font-size: 2rem; color: var(--accent); }
+.welcome-text { font-size: .8rem; line-height: 1.5; }
+.welcome-text strong { display: block; color: var(--accent); margin-bottom: .25rem; }
+
+.msg-wrap { display: flex; flex-direction: column; max-width: 85%; }
+.msg-wrap.user { align-self: flex-end; align-items: flex-end; }
+.msg-wrap.assistant { align-self: flex-start; align-items: flex-start; }
+
+.msg-bubble {
+  padding: .75rem 1rem; border-radius: 12px;
+  font-size: .9rem; line-height: 1.5; word-wrap: break-word;
+}
+.msg-wrap.user .msg-bubble {
+  background: var(--user-bg);
+  border: 1px solid rgba(0,229,255,.2);
+  border-bottom-right-radius: 4px;
+}
+.msg-wrap.assistant .msg-bubble {
+  background: var(--ai-bg);
+  border: 1px solid rgba(124,58,237,.2);
+  border-bottom-left-radius: 4px;
+}
+
+.msg-meta {
+  font-size: .6rem; color: var(--text-dim);
+  margin-top: .25rem; padding: 0 .25rem;
+}
+
+.typing-indicator {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .75rem 1rem; background: var(--ai-bg);
+  border-radius: 12px; border: 1px solid rgba(124,58,237,.2);
+}
+.typing-dots { display: flex; gap: 3px; }
+.typing-dots span {
+  width: 6px; height: 6px; background: var(--accent2);
+  border-radius: 50%; animation: typing 1.4s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: .2s; }
+.typing-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes typing { 0%,100%{transform:scale(.5);opacity:.3} 50%{transform:scale(1);opacity:1} }
+
+/* ═══ INPUT ZONE ══════════════════════════════════════════ */
+.mobile-input-zone {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: .75rem; flex-shrink: 0;
+}
+
+.input-row { display: flex; gap: .5rem; align-items: flex-end; }
+
+#msg-input {
+  flex: 1; padding: .75rem; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg2); color: var(--text);
+  font-family: 'Rajdhani', sans-serif; font-size: .95rem;
+  resize: none; max-height: 100px;
+}
+#msg-input:focus { outline: none; border-color: var(--accent); }
+
+#send-btn {
+  width: 44px; height: 44px; border: none; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; font-size: 1.25rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#send-btn:disabled { opacity: .4; }
+
+.input-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: .5rem; font-size: .65rem; color: var(--text-dim);
+}
+
+.cyber-select-mini {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); padding: .25rem .5rem; border-radius: 6px;
+  font-size: .7rem; font-family: 'Rajdhani', sans-serif;
+}
+
+/* ═══ COSMIC PANEL (Bottom Sheet) ════════════════════════ */
+.cosmic-panel {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, var(--panel), var(--bg2));
+  border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  max-height: 60vh; overflow-y: auto;
+  transform: translateY(calc(100% - 50px));
+  transition: transform .3s ease-out;
+  z-index: 100;
+  box-shadow: 0 -5px 30px rgba(0,0,0,.5);
+}
+.cosmic-panel.open { transform: translateY(0); }
+
+.panel-handle {
+  display: flex; align-items: center; justify-content: center;
+  padding: .75rem; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,.2);
+}
+.handle-bar {
+  width: 40px; height: 4px; background: var(--text-dim);
+  border-radius: 2px; display: block; margin-bottom: .25rem;
+}
+.panel-status {
+  font-size: .65rem; color: var(--accent);
+  margin-left: .75rem; text-transform: uppercase;
+}
+
+.panel-content { padding: 1rem; }
+
+.data-block {
+  margin-bottom: 1rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.data-block:last-child { border-bottom: none; margin-bottom: 0; }
+
+.data-title {
+  font-size: .7rem; color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: .75rem; text-transform: uppercase;
+}
+
+/* Taux vibratoire */
+.vibro-row { display: flex; justify-content: space-between; margin-bottom: .4rem; font-size: .75rem; }
+.vibro-label { color: var(--text-dim); }
+.vibro-score { color: var(--accent); font-weight: 700; }
+.vibro-track { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.vibro-bar { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width .5s; }
+
+/* Chakras mini */
+.chakra-mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; }
+.chakra-mini { text-align: center; padding: .4rem; background: var(--bg2); border-radius: 6px; }
+.chakra-mini-label { display: block; font-size: .5rem; color: var(--text-dim); margin-bottom: .2rem; }
+.chakra-mini-val { display: block; font-size: .8rem; color: var(--accent); font-weight: 700; }
+
+/* Trinité mini */
+.trinite-mini { display: flex; flex-direction: column; gap: .4rem; }
+.mini-meter { display: flex; align-items: center; gap: .4rem; font-size: .6rem; }
+.mini-meter span:first-child { width: 55px; color: var(--text-dim); }
+.mini-track { flex: 1; height: 5px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.mini-fill { height: 100%; transition: width .5s; }
+.mini-fill.accent { background: var(--accent2); }
+.mini-fill.purple { background: #a855f7; }
+.mini-fill.green { background: #10b981; }
+
+/* Éléments */
+.elements-mini { display: flex; justify-content: space-between; }
+.elem-mini { text-align: center; }
+.elem-mini span { display: block; font-size: .75rem; color: var(--accent); font-weight: 700; }
+.elem-mini small { font-size: .5rem; color: var(--text-dim); text-transform: uppercase; }
+
+/* Astrologie */
+.astro-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
+.astro-mini { padding: .4rem; background: var(--bg2); border-radius: 6px; text-align: center; }
+.astro-mini-label { display: block; font-size: .5rem; color: var(--text-dim); margin-bottom: .2rem; }
+.astro-mini-val { display: block; font-size: .7rem; color: var(--accent2); font-weight: 700; }
+
+/* Meta */
+.meta-mini { font-size: .65rem; }
+.meta-row { display: flex; justify-content: space-between; padding: .25rem 0; border-bottom: 1px solid var(--border); }
+.meta-row:last-child { border-bottom: none; }
+.meta-row span:first-child { color: var(--text-dim); }
+.meta-row span:last-child { color: var(--accent); font-family: 'Share Tech Mono', monospace; }
+
+/* Scrollbar */
+.cosmic-panel::-webkit-scrollbar { width: 3px; }
+.cosmic-panel::-webkit-scrollbar-track { background: transparent; }
+.cosmic-panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Responsive adjustments */
+@media (min-width: 480px) {
+  .chakra-mini-grid { grid-template-columns: repeat(7, 1fr); }
+  .astro-mini-grid { grid-template-columns: repeat(4, 1fr); }
+}
