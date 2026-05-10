@@ -118,9 +118,10 @@ function save_analysis(string $session, int $msg_id, array $a, array $b): void {
 
 function get_history(string $session, int $limit = 20): array {
     $db   = get_db();
-    $stmt = $db->prepare("SELECT role,content FROM messages WHERE session_id=? ORDER BY created_at DESC LIMIT ?");
+    $stmt = $db->prepare("SELECT role,content FROM messages WHERE session_id=? ORDER BY id ASC LIMIT ?");
     $stmt->execute([$session, $limit]);
-    return array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $rows ?: [];
 }
 
 function get_context_summary(string $session): string {
