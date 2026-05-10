@@ -1,14 +1,12 @@
 /* ═══════════════════════════════════════════════════
    ALCYON v4.0 — PORTAIL DE BUGARACH
-   Script complet — zéro backend, appel direct Mistral
+   Script complet — avec backend PHP et base de données
 ═══════════════════════════════════════════════════ */
 
 'use strict';
 
 // ── Configuration ───────────────────────────────────────────
-// ⚠️ REMPLACER PAR VOTRE CLÉ MISTRAL RÉELLE
-const MISTRAL_API_KEY = 'votre-cle-mistral-ici';
-const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
+const API_URL = 'api.php';
 
 // Personas avec leurs system prompts
 const PERSONAS = {
@@ -212,10 +210,10 @@ async function sendMessage() {
   
   let replyData;
   try {
-    const response = await fetch(MISTRAL_API_URL, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${MISTRAL_API_KEY}`,
+        'Authorization': `Bearer ${"APIKEY_NOT_NEEDED"}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -319,10 +317,10 @@ Champs requis :
 Message à analyser : "${userText}"`;
 
   try {
-    const response = await fetch(MISTRAL_API_URL, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${MISTRAL_API_KEY}`,
+        'Authorization': `Bearer ${"APIKEY_NOT_NEEDED"}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
