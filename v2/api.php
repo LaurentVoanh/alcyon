@@ -78,17 +78,33 @@ $system_reply = $persona_data['prompt'] . $ctx_inject;
 // PHASE 1 — REPLY (1 appel, ~5-15s)
 // ════════════════════════════════════════════
 if ($phase === 'reply') {
-    // Récupérer l'historique complet pour le contexte de conversation
+    // Récupérer l'historique complet pour le contexte de conversation (12 derniers messages)
     $history      = get_history($session, 12);
-    $messages_ctx = array_map(fn($m) => ['role'=>$m['role'],'content'=>$m['content']], $history);
-    $messages_ctx[] = ['role'=>'user','content'=>$message];
-
+    
+    // Formater l'historique en alternant user/assistant correctement
+    $messages_ctx = [];
+    foreach ($history as $h) {
+        $messages_ctx[] = [
+            'role' => $h['role'],
+            'content' => $h['content']
+        ];
+    }
+    
+    // Ajouter le message actuel de l'utilisateur
+    $messages_ctx[] = ['role' => 'user', 'content' => $message];
+    
     $model_reply = select_model($model_task);
     $t0          = microtime(true);
 
+    // Construire le tableau complet : system + historique + nouveau message
+    $full_messages = array_merge(
+        [['role' => 'system', 'content' => $system_reply]],
+        $messages_ctx
+    );
+
     $res = do_curl(MISTRAL_API, get_key('responder'), [
         'model'       => $model_reply,
-        'messages'    => array_merge([['role'=>'system','content'=>$system_reply]], $messages_ctx),
+        'messages'    => $full_messages,
         'temperature' => $temperature,
         'max_tokens'  => 1200,
     ]);
