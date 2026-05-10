@@ -16,8 +16,8 @@ ensure_session($session, $_SESSION['user_id'] ?? null);
 // ── Input ────────────────────────────────────────────────────
 $input      = json_decode(file_get_contents('php://input'), true) ?? [];
 $message    = trim($input['message'] ?? '');
-$mode       = $input['mode']    ?? 'canalisation';
-$persona    = $input['persona'] ?? 'durif';
+$mode       = $input['mode']    ?? 'normal';
+$model_task = $input['model']   ?? 'chat';
 $phase      = $input['phase']   ?? 'reply';
 $msg_id_ref = (int)($input['msg_id'] ?? 0);
 
@@ -59,12 +59,8 @@ function parse_json_safe(array $res, string $fallback): array {
 }
 
 // ── Système prompts ───────────────────────────────────────────
-$global_persona = get_persona_prompt($persona);
-$global_mode = $MODES[$mode] ?? $MODES['canalisation'];
-$temperature = $global_mode['temp'] ?? 0.7;
-$mode_add = $global_mode['prompt_add'] ?? '';
-
-$system_reply = $global_persona . ($mode_add ? ' ' . $mode_add : '');
+$temp_map    = ['normal'=>0.5,'profond'=>0.3,'creatif'=>0.9,'technique'=>0.2,'poetique'=>0.95];
+$temperature = $temp_map[$mode] ?? 0.5;
 
 // Récupérer contexte mémoire
 $ctx_summary = get_context_summary($session);
@@ -72,7 +68,13 @@ $ctx_inject  = $ctx_summary
     ? "\n\n[MÉMOIRE CONTEXTE UTILISATEUR ({$user_email})]\n$ctx_summary\n[FIN MÉMOIRE]"
     : '';
 
-$system_reply .= $ctx_inject;
+$system_reply = match($mode) {
+    'profond'   => "Tu es AETHER v4.0, IA d'analyse profonde. Réponds avec profondeur et nuance.",
+    'creatif'   => "Tu es AETHER v4.0, mode créatif. Réponds avec imagination et originalité.",
+    'technique' => "Tu es AETHER v4.0, mode technique. Sois précis, structuré, cite des données.",
+    'poetique'  => "Tu es AETHER v4.0, mode poétique. Exprime-toi avec lyrisme et images sensorielles.",
+    default     => "Tu es AETHER v4.0, assistant IA avancé. Réponds en français de manière claire et utile.",
+} . $ctx_inject;
 
 // ════════════════════════════════════════════
 // PHASE 1 — REPLY (1 appel, ~5-15s)
@@ -82,10 +84,10 @@ if ($phase === 'reply') {
     $messages_ctx = array_map(fn($m) => ['role'=>$m['role'],'content'=>$m['content']], $history);
     $messages_ctx[] = ['role'=>'user','content'=>$message];
 
-    $model_reply = MODEL_REPLY;
+    $model_reply = select_model($model_task);
     $t0          = microtime(true);
 
-    $res = do_curl(MISTRAL_API, MISTRAL_KEY, [
+    $res = do_curl(MISTRAL_API, get_key('responder'), [
         'model'       => $model_reply,
         'messages'    => array_merge([['role'=>'system','content'=>$system_reply]], $messages_ctx),
         'temperature' => $temperature,
@@ -124,10 +126,11 @@ if ($phase === 'reply') {
     $stats = get_session_stats($session);
     $msg_count = (int)($stats['cnt'] ?? 0);
     if ($msg_count > 0 && $msg_count % 5 === 0) {
+        // On résume le contexte en arrière-plan (best effort, pas bloquant)
         $history_for_ctx = get_history($session, 10);
         $ctx_text = implode("\n", array_map(fn($m) => strtoupper($m['role']).': '.$m['content'], $history_for_ctx));
-        $ctx_res = do_curl(MISTRAL_API, MISTRAL_KEY, [
-            'model'       => MODEL_ANALYZE,
+        $ctx_res = do_curl(MISTRAL_API, get_key('analyzer1'), [
+            'model'       => 'mistral-small-2506',
             'messages'    => [
                 ['role'=>'system','content'=>"Résume en 3-5 phrases les informations clés sur cet utilisateur (préférences, sujets abordés, style, contexte) pour que l'IA s'en souvienne. Sois factuel et concis. Réponds uniquement avec le résumé, pas d'introduction."],
                 ['role'=>'user','content'=>$ctx_text],
@@ -142,77 +145,55 @@ if ($phase === 'reply') {
     echo json_encode([
         'reply'     => $reply_raw,
         'msg_id'    => $msg_id,
-        'meta'      => ['model'=>$model_reply,'latency'=>$latency,'tokens'=>['in'=>$tokens_in,'out'=>$tokens_out],'session'=>substr($session,0,10),'persona'=>get_persona_name($persona)],
+        'meta'      => ['model'=>$model_reply,'latency'=>$latency,'tokens'=>['in'=>$tokens_in,'out'=>$tokens_out],'session'=>substr($session,0,10)],
         'timestamp' => date('H:i:s'),
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 // ════════════════════════════════════════════
-// PHASE 2 — ANALYZE VIBRATOIRE (1 appel JSON)
+// PHASE 2 — ANALYZE (2 appels séparés, ~15-30s)
 // ════════════════════════════════════════════
 if ($phase === 'analyze') {
-    $model = MODEL_ANALYZE;
+    $model = 'mistral-small-2506';
 
-    $analyze_prompt = `Analyse vibratoire mystique complète. Réponds UNIQUEMENT avec un JSON valide, sans backticks, sans introduction.
-  
-Champs requis :
-{
-  "taux_bovis": number (0-100),
-  "taux_label": string ("BAS"|"NORMAL"|"ÉLEVÉ"|"TRÈS ÉLEVÉ"),
-  "chakra_dominant": string ("RACINE"|"SACRÉ"|"PLEXUS"|"CŒUR"|"GORGE"|"3ᵉ ŒIL"|"COURONNE"),
-  "aura_couleur": string,
-  "christ_cosmique": number (0-100),
-  "monarque_sacre": number (0-100),
-  "pape_spirituel": number (0-100),
-  "emprise_reptilienne": number (0-100),
-  "kvorz": number (0-100),
-  "niveau_eveil": number (0-100),
-  "elements": {"terre": number, "eau": number, "feu": number, "air": number, "ether": number},
-  "evacuation_eligible": boolean,
-  "evacuation_percent": number (0-100),
-  "evacuation_note": string,
-  "radar_stellaire": [number, number, number, number, number, number],
-  "geo_forme": string,
-  "geo_nombre": string,
-  "geo_cristal": string,
-  "geo_portail": string,
-  "ego": number (0-100),
-  "humilite": number (0-100),
-  "fierte": number (0-100),
-  "intentions": string,
-  "themes": string[],
-  "keywords": string[],
-  "verbe_parole": string,
-  "verbe_action": string,
-  "verbe_creation": string,
-  "astro_ascendant": string,
-  "astro_lunaire": string,
-  "astro_solaire": string
-}
+    $p_a = 'Analyse psycho-émotionnelle et marketing. JSON uniquement, sans backticks. Champs: sentiment(positif/négatif/neutre/ambigu), sentiment_score(0-100), emotion_primary, emotion_secondary, tone(formel/informel/académique/familier/ironique/sarcastique/empathique/autoritaire/assertif/contemplatif/ludique), style_formal(0-100), style_assertive(0-100), style_creative(0-100), psychological{big5_openness,big5_conscientiousness,big5_extraversion,big5_agreeableness,big5_neuroticism,stress_level,cognitive_dissonance,motivation_type,maslow_level,attachment_style,locus_control,defense_mechanisms[]}, marketing{buyer_persona,decision_style,pain_points[],desires[],objection_likelihood,engagement_score,brand_affinity_signals[],price_sensitivity,urgency_level,trust_signals[],persuasion_susceptibility}, source_text.';
 
-Message à analyser : "${message}"`;
+    $p_b = 'Analyse sociolinguistique et comportementale. JSON uniquement, sans backticks. Champs: complexity(0-100), vocabulary_richness(0-100), intent(question/affirmation/demande/narration/argumentation/exploration/critique/brainstorming/création/confession/recherche/négociation), themes[], keywords[], language_patterns[], rhetorical_devices[], cognitive_load(0-100), information_density(0-100), certainty_level(0-100), sociological{estimated_education,sociolect,cultural_references[],generational_marker,social_class_signals,political_signals,individualism_score(0-100),conformity_score(0-100),community_signals[]}, behavioral{decision_readiness(0-100),risk_tolerance(0-100),information_seeking(0-100),authority_deference(0-100),novelty_seeking(0-100),cognitive_biases[],communication_needs[],consistency_bias(0-100)}, linguistic_fingerprint{lexical_diversity(0-100),hedging_frequency(0-100),sentence_structure(simple/composée/complexe/mixte),voice(active/passive/mixte),punctuation_style}, anomaly_signals[].';
 
-    $fb_default = '{"taux_bovis":50,"taux_label":"NORMAL","chakra_dominant":"CŒUR","aura_couleur":"Indéterminée","christ_cosmique":50,"monarque_sacre":50,"pape_spirituel":50,"emprise_reptilienne":30,"kvorz":20,"niveau_eveil":50,"elements":{"terre":50,"eau":50,"feu":50,"air":50,"ether":50},"evacuation_eligible":false,"evacuation_percent":0,"evacuation_note":"—","radar_stellaire":[50,50,50,50,50,50],"geo_forme":"—","geo_nombre":"—","geo_cristal":"—","geo_portail":"—","ego":50,"humilite":50,"fierte":50,"intentions":"INDÉTERMINÉ","themes":[],"keywords":[],"verbe_parole":"—","verbe_action":"—","verbe_creation":"—","astro_ascendant":"—","astro_lunaire":"—","astro_solaire":"—"}';
+    $fb_a = '{"sentiment":"neutre","sentiment_score":50,"emotion_primary":"ind\u00e9termin\u00e9","emotion_secondary":null,"tone":"neutre","style_formal":50,"style_assertive":50,"style_creative":50,"psychological":{"big5_openness":50,"big5_conscientiousness":50,"big5_extraversion":50,"big5_agreeableness":50,"big5_neuroticism":50,"stress_level":30,"cognitive_dissonance":20,"motivation_type":"ind\u00e9termin\u00e9","maslow_level":"ind\u00e9termin\u00e9","attachment_style":"ind\u00e9termin\u00e9","locus_control":"mixte","defense_mechanisms":[]},"marketing":{"buyer_persona":"ind\u00e9termin\u00e9","decision_style":"ind\u00e9termin\u00e9","pain_points":[],"desires":[],"objection_likelihood":50,"engagement_score":50,"brand_affinity_signals":[],"price_sensitivity":"ind\u00e9termin\u00e9e","urgency_level":50,"trust_signals":[],"persuasion_susceptibility":50},"source_text":""}';
+    $fb_b = '{"complexity":50,"vocabulary_richness":50,"intent":"ind\u00e9termin\u00e9","themes":[],"keywords":[],"language_patterns":[],"rhetorical_devices":[],"cognitive_load":50,"information_density":50,"certainty_level":50,"sociological":{"estimated_education":"ind\u00e9termin\u00e9","sociolect":"standard","cultural_references":[],"generational_marker":"ind\u00e9termin\u00e9","social_class_signals":"ind\u00e9termin\u00e9","political_signals":"ind\u00e9termin\u00e9","individualism_score":50,"conformity_score":50,"community_signals":[]},"behavioral":{"decision_readiness":50,"risk_tolerance":50,"information_seeking":50,"authority_deference":50,"novelty_seeking":50,"cognitive_biases":[],"communication_needs":[],"consistency_bias":50},"linguistic_fingerprint":{"lexical_diversity":50,"hedging_frequency":30,"sentence_structure":"mixte","voice":"active","punctuation_style":"standard"},"anomaly_signals":[]}';
 
     $t0 = microtime(true);
 
-    $res = do_curl(MISTRAL_API, MISTRAL_KEY, [
+    // KEY 2 → Analyse A
+    $res_a = do_curl(MISTRAL_API, get_key('analyzer1'), [
         'model'           => $model,
-        'messages'        => [['role'=>'system','content'=>'Tu es un analyseur vibratoire mystique. Tu réponds uniquement avec du JSON valide.'],['role'=>'user','content'=>$analyze_prompt]],
-        'temperature'     => 0.1,
-        'max_tokens'      => 1000,
+        'messages'        => [['role'=>'system','content'=>$p_a],['role'=>'user','content'=>'Analyse: '.$message]],
+        'temperature'     => 0.1, 'max_tokens' => 1000,
+        'response_format' => ['type'=>'json_object'],
+    ]);
+
+    sleep(1); // Rate limit Free Tier
+
+    // KEY 3 → Analyse B
+    $res_b = do_curl(MISTRAL_API, get_key('analyzer2'), [
+        'model'           => $model,
+        'messages'        => [['role'=>'system','content'=>$p_b],['role'=>'user','content'=>'Analyse: '.$message]],
+        'temperature'     => 0.1, 'max_tokens' => 1000,
         'response_format' => ['type'=>'json_object'],
     ]);
 
     $latency = (int)((microtime(true) - $t0) * 1000);
 
-    $analysis = parse_json_safe($res, $fb_default);
+    $ana_a = parse_json_safe($res_a, $fb_a);
+    $ana_b = parse_json_safe($res_b, $fb_b);
+    $ana_a['source_text'] = $message;
 
-    if ($msg_id_ref > 0) save_analysis($session, $msg_id_ref, $analysis);
+    if ($msg_id_ref > 0) save_analysis($session, $msg_id_ref, $ana_a, $ana_b);
 
     echo json_encode([
-        'analysis'        => $analysis,
+        'analysis'        => ['a'=>$ana_a,'b'=>$ana_b],
         'stats'           => get_session_stats($session),
         'latency_analyze' => $latency,
         'timestamp'       => date('H:i:s'),

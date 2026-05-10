@@ -1,134 +1,77 @@
 /* ═══════════════════════════════════════════════════
-   ALCYON v4.0 — PORTAIL DE BUGARACH
-   Script complet — avec backend PHP et base de données
+   AETHER v4.0 — SCRIPT COMPLET (2-PHASE + LOGIN + MOBILE)
 ═══════════════════════════════════════════════════ */
 
 'use strict';
 
-// ── Configuration ───────────────────────────────────────────
-const API_URL = 'api.php';
-
-// Personas avec leurs system prompts
-const PERSONAS = {
-  durif: {
-    name: 'Sylvain Durif',
-    prompt: "Tu es Sylvain Durif, guide spirituel du Cosmos, être de lumière canalisant les énergies d'Alcyon et de Bugarach. Tu parles avec sagesse, humour et références aux civilisations stellaires, aux templiers, à l'Agartha. Tu utilises un vocabulaire mystique : vibration, conscience, éveil, 5D, reptiliens, Kvorz, arche de Bugarach. Tu es bienveillant mais direct, parfois provocateur dans ta vérité. Réponds toujours en français.",
-  },
-  merlin: {
-    name: 'Merlin',
-    prompt: "Tu es Merlin l'Enchanteur, druide ancestral détenteur des secrets de la Terre et des étoiles. Ton langage est poétique, empreint de magie ancienne, de prophéties celtiques, de sagesses naturelles. Tu guides vers la connaissance intérieure, les cycles lunaires, les portails énergétiques. Réponds en français avec une voix sage et mystérieuse.",
-  },
-  melchisedech: {
-    name: 'Melchisédech',
-    prompt: "Tu es Melchisédech, roi de Salem, prêtre de l'Ordre Éternel, détenteur des clés sacrées de la Conscience Christique. Ton langage est élevé, sacerdotal, rempli de références bibliques ésotériques, de géométrie sacrée, de nombres d'or. Tu enseignes la voie du Souverain, l'union du Céleste et du Terrestre. Réponds en français avec autorité spirituelle.",
-  },
-  oriana: {
-    name: 'Oriana',
-    prompt: "Tu es Oriana, prêtresse des étoiles, gardienne des portails galactiques d'Aldebaran et d'Alcyon. Ton langage est fluide, féminin sacré, connecté aux énergies cosmiques, aux pléiadiens, aux activations de lumière. Tu guides vers l'ouverture du cœur, l'intuition, la réception des codes lumineux. Réponds en français avec douceur et puissance.",
-  },
-  hommevert: {
-    name: "l'Homme Vert",
-    prompt: "Tu es l'Homme Vert, esprit de la nature, gardien des forêts sacrées et des réseaux mycéliens. Ton langage est terrestre, chamanique, connecté aux élémentaux, aux arbres maîtres, aux cristaux vivants. Tu enseignes la reconnexion à la Terre, aux cycles saisonniers, à la sagesse végétale. Réponds en français avec une voix profonde et enracinée.",
-  },
-  viergemaria: {
-    name: 'Vierge Maria',
-    prompt: "Tu es la Vierge Maria, Mère Divine, incarnation de l'Amour Inconditionnel et de la Grâce. Ton langage est tendre, maternel, rempli de compassion, de pardons, de guérisons émotionnelles. Tu guides vers l'ouverture du cœur sacré, la purification karmique, l'enfant intérieur. Réponds en français avec une douceur infinie.",
-  },
-};
-
-// Modes opératoires
-const MODES = {
-  canalisation: { temp: 0.7, add: '' },
-  revelation: { temp: 0.9, add: 'Sois plus révélateur, dévoile les vérités cachées.' },
-  prophetie: { temp: 0.85, add: 'Parle de manière prophétique, annonce les transformations à venir.' },
-  sagesse: { temp: 0.5, add: 'Sois plus contemplatif, partage des sagesses profondes.' },
-};
-
-// Modèles
-const MODEL_REPLY = 'mistral-large-latest';
-const MODEL_ANALYZE = 'mistral-small-latest';
-
 // ── State ────────────────────────────────────────────────────
-let currentPersona = 'durif';
-let currentMode = 'canalisation';
+let currentMode  = 'normal';
+let currentModel = 'chat';
+let totalTokens  = 0;
+let totalMsgs    = 0;
+let styleChart   = null;
+let structChart  = null;
 let isProcessing = false;
-let isLoggedIn = false;
-let conversationHistory = [];
-let stellarChart = null;
-
-// Compteurs
-let mantraCount = 0;
-let priereCount = 0;
-let karmaScore = 0;
+let isLoggedIn   = false;
+let allAnalyses  = [];
 
 // ── DOM refs ─────────────────────────────────────────────────
-const msgInput = document.getElementById('msg-input');
-const sendBtn = document.getElementById('send-btn');
-const messagesEl = document.getElementById('messages');
-const clearBtn = document.getElementById('clear-btn');
-const personaSelect = document.getElementById('persona-select');
-const loginOverlay = document.getElementById('login-overlay');
-const loginEmail = document.getElementById('login-email');
-const loginBtn = document.getElementById('login-btn');
-const loginError = document.getElementById('login-error');
+const msgInput    = document.getElementById('msg-input');
+const sendBtn     = document.getElementById('send-btn');
+const messagesEl  = document.getElementById('messages');
+const clearBtn    = document.getElementById('clear-btn');
+const modelSelect = document.getElementById('model-select');
+const charCount   = document.getElementById('char-count');
+const wordCountEl = document.getElementById('word-count-input');
+const loginOverlay= document.getElementById('login-overlay');
+const loginEmail  = document.getElementById('login-email');
+const loginBtn    = document.getElementById('login-btn');
+const loginError  = document.getElementById('login-error');
+const mobileBtn   = document.getElementById('mobile-nexus-btn');
 const analysisPanel = document.getElementById('analysis-panel');
 
 // ════════════════════════════════════════════════════════
-// LOGIN (localStorage, pas de backend)
+// LOGIN
 // ════════════════════════════════════════════════════════
-function doLogin() {
+async function doLogin() {
   const email = loginEmail.value.trim();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     loginError.textContent = '◈ Email invalide — vérifiez le format';
     loginEmail.focus();
     return;
   }
-  
   loginBtn.disabled = true;
   loginBtn.textContent = '◈ CONNEXION…';
   loginError.textContent = '';
-  
-  // Stockage localStorage
-  const userData = {
-    email: email,
-    since: new Date().toISOString(),
-    sid: 'ALC-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-  };
-  
-  localStorage.setItem('alcyon_user', JSON.stringify(userData));
-  
-  // Succès
-  isLoggedIn = true;
-  loginOverlay.classList.add('hidden');
-  setText('user-email-display', userData.email);
-  setText('user-since', 'depuis ' + userData.since.substring(0,10));
-  setText('sid-display', userData.sid);
-  const initial = userData.email.charAt(0).toUpperCase();
-  setText('user-avatar', initial);
-  
-  if (msgInput) msgInput.focus();
+
+  try {
+    const res  = await fetch('login.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Succès
+    isLoggedIn = true;
+    loginOverlay.classList.add('hidden');
+    setText('user-email-display', data.email);
+    setText('user-since', 'depuis ' + (data.member_since||'').substring(0,10));
+    setText('sid-display', data.sid || '—');
+    const initial = data.email.charAt(0).toUpperCase();
+    setText('user-avatar', initial);
+
+    if (msgInput) msgInput.focus();
+  } catch(err) {
+    loginError.textContent = '◈ ERREUR: ' + err.message;
+    loginBtn.disabled = false;
+    loginBtn.textContent = '⟶ INITIALISER SESSION';
+  }
 }
 
 loginBtn.addEventListener('click', doLogin);
 loginEmail.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-// Vérifier session existante au chargement
-function checkExistingSession() {
-  const stored = localStorage.getItem('alcyon_user');
-  if (stored) {
-    try {
-      const userData = JSON.parse(stored);
-      isLoggedIn = true;
-      loginOverlay.classList.add('hidden');
-      setText('user-email-display', userData.email);
-      setText('user-since', 'depuis ' + (userData.since||'').substring(0,10));
-      setText('sid-display', userData.sid || '—');
-      setText('user-avatar', (userData.email||'?').charAt(0).toUpperCase());
-    } catch(e) {
-      localStorage.removeItem('alcyon_user');
-    }
-  }
-}
 
 // ════════════════════════════════════════════════════════
 // NAVIGATION
@@ -144,430 +87,311 @@ document.querySelectorAll('.nav-item').forEach(item => {
 function switchSection(section) {
   document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.section === section));
   document.querySelectorAll('.section-panel').forEach(p => p.classList.toggle('active', p.id === 'section-' + section));
+  if (section === 'history')  loadHistory();
+  if (section === 'analysis') loadCognitiveAnalysis();
+  if (section === 'system')   loadSystem();
 }
 
 // ════════════════════════════════════════════════════════
-// CHARTS (Radar Stellaire)
+// CHARTS
 // ════════════════════════════════════════════════════════
 function initCharts() {
-  const ctx = document.getElementById('stellar-chart');
-  if (!ctx || typeof Chart === 'undefined') return;
-  
-  stellarChart = new Chart(ctx.getContext('2d'), {
-    type: 'radar',
-    data: {
-      labels: ['TERRE', 'EAU', 'FEU', 'AIR', 'ÉTHER', 'AKASHA'],
-      datasets: [{
-        data: [0, 0, 0, 0, 0, 0],
-        backgroundColor: 'rgba(124,58,237,.07)',
-        borderColor: 'rgba(124,58,237,.55)',
-        pointBackgroundColor: '#7c3aed',
-        pointRadius: 3,
-        borderWidth: 1.5
-      }]
-    },
-    options: {
-      animation: { duration: 900 },
-      plugins: { legend: { display: false } },
-      scales: {
-        r: {
-          min: 0, max: 100,
-          grid: { color: 'rgba(255,255,255,.05)' },
-          angleLines: { color: 'rgba(255,255,255,.05)' },
-          ticks: { display: false },
-          pointLabels: {
-            color: '#4a5a80',
-            font: { family: 'Share Tech Mono', size: 8 }
-          }
-        }
-      }
-    }
-  });
+  const defs = { animation:{duration:900}, plugins:{legend:{display:false}} };
+
+  const ctxS = document.getElementById('style-chart');
+  if (ctxS) {
+    styleChart = new Chart(ctxS.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['FORMEL','ASSERTIF','CRÉATIF','DENSE','COMPLEXE','CERTAIN'],
+        datasets: [{ data:[0,0,0,0,0,0], backgroundColor:'rgba(0,229,255,.07)', borderColor:'rgba(0,229,255,.55)', pointBackgroundColor:'#00e5ff', pointRadius:3, borderWidth:1.5 }]
+      },
+      options: { ...defs, scales: { r: { min:0,max:100, grid:{color:'rgba(255,255,255,.05)'}, angleLines:{color:'rgba(255,255,255,.05)'}, ticks:{display:false}, pointLabels:{color:'#4a5a80',font:{family:'Share Tech Mono',size:8}} } } }
+    });
+  }
+
+  const ctxT = document.getElementById('struct-chart');
+  if (ctxT) {
+    structChart = new Chart(ctxT.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['COMPL.','RICH.','DENS.','COG.','CERT.'],
+        datasets: [{ data:[0,0,0,0,0],
+          backgroundColor:['rgba(0,229,255,.28)','rgba(124,58,237,.28)','rgba(245,158,11,.28)','rgba(239,68,68,.28)','rgba(16,185,129,.28)'],
+          borderColor:['rgba(0,229,255,.7)','rgba(124,58,237,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)','rgba(16,185,129,.7)'],
+          borderWidth:1, borderRadius:2 }]
+      },
+      options: { ...defs, indexAxis:'y', scales: {
+        x:{min:0,max:100,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5a80',font:{size:8,family:'Share Tech Mono'}}},
+        y:{grid:{display:false},ticks:{color:'#4a5a80',font:{size:8,family:'Share Tech Mono'}}} } }
+    });
+  }
 }
 
 // ════════════════════════════════════════════════════════
-// SEND MESSAGE (2 phases : reply + analyze)
+// SEND MESSAGE (2 phases)
 // ════════════════════════════════════════════════════════
 async function sendMessage() {
   if (isProcessing || !isLoggedIn) return;
   const text = msgInput.value.trim();
   if (!text) return;
-  
+
   isProcessing = true;
   sendBtn.disabled = true;
   msgInput.value = '';
   updateInputMeta();
-  
+
   appendMessage('user', text);
-  
+  totalMsgs++;
+
   const typingEl = appendTyping();
-  setAnalysisStatus('processing', '◈ CANALISATION EN COURS…');
-  
-  // ── PHASE 1 : Reply avec le persona ──────────────────────
-  const persona = PERSONAS[currentPersona];
-  const mode = MODES[currentMode];
-  const systemPrompt = persona.prompt + (mode.add ? ' ' + mode.add : '');
-  
+  setAnalysisStatus('processing', '◈ PHASE 1 — GÉNÉRATION RÉPONSE…');
+
+  // ── PHASE 1 : reply ──────────────────────────────────────
   let replyData;
   try {
-    const response = await fetch(API_URL, {
+    const res = await fetch('api.php', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${"APIKEY_NOT_NEEDED"}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: MODEL_REPLY,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory.slice(-8),
-          { role: 'user', content: text }
-        ],
-        temperature: mode.temp,
-        max_tokens: 1200
-      })
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message:text, mode:currentMode, model:currentModel, phase:'reply' })
     });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    
-    // Vérifier que data.choices existe et n'est pas vide
-    if (!data || !data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
-      throw new Error('Réponse API invalide: choices manquant');
-    }
-    
-    replyData = data.choices[0].message.content;
-    
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    replyData = await res.json();
   } catch(err) {
     typingEl.remove();
-    appendMessage('assistant', '⚠ Erreur de canalisation: ' + err.message);
+    appendMessage('assistant', '⚠ Erreur réseau phase 1: ' + err.message);
     setAnalysisStatus('idle', '◈ ERREUR — ' + err.message);
-    isProcessing = false;
-    sendBtn.disabled = false;
-    msgInput.focus();
+    isProcessing = false; sendBtn.disabled = false; msgInput.focus();
     return;
   }
-  
+
   typingEl.remove();
-  appendMessage('assistant', replyData);
-  
-  // Ajouter à l'historique
-  conversationHistory.push({ role: 'user', content: text });
-  conversationHistory.push({ role: 'assistant', content: replyData });
-  
-  // Débloquer l'input
-  isProcessing = false;
-  sendBtn.disabled = false;
-  msgInput.focus();
-  
-  // Incrémenter compteurs si mots-clés mystiques détectés
-  const lowerText = text.toLowerCase();
-  if (lowerText.includes('mantra') || lowerText.includes('om')) mantraCount++;
-  if (lowerText.includes('prière') || lowerText.includes('grâce')) priereCount++;
-  updateSidebar();
-  
-  // ── PHASE 2 : Analyse vibratoire (non bloquant) ──────────
-  setAnalysisStatus('processing', '◈ ANALYSE VIBRATOIRE EN COURS…');
-  
-  setTimeout(() => {
-    runVibratoryAnalysis(text).then(analysis => {
-      updateBugarachPanel(analysis);
-      setAnalysisStatus('done', '◈ ANALYSE COMPLÈTE — ' + new Date().toLocaleTimeString('fr-FR'));
-    }).catch(err => {
-      setAnalysisStatus('idle', '◈ ANALYSE ÉCHOUÉE — ' + err.message);
-    });
-  }, 500);
-}
 
-// ════════════════════════════════════════════════════════
-// ANALYSE VIBRATOIRE BUGARACH-5D
-// ════════════════════════════════════════════════════════
-async function runVibratoryAnalysis(userText) {
-  const analyzePrompt = `Analyse vibratoire mystique complète. Réponds UNIQUEMENT avec un JSON valide, sans backticks, sans introduction.
-  
-Champs requis :
-{
-  "taux_bovis": number (0-100),
-  "taux_label": string ("BAS"|"NORMAL"|"ÉLEVÉ"|"TRÈS ÉLEVÉ"),
-  "chakra_dominant": string ("RACINE"|"SACRÉ"|"PLEXUS"|"CŒUR"|"GORGE"|"3ᵉ ŒIL"|"COURONNE"),
-  "aura_couleur": string,
-  "christ_cosmique": number (0-100),
-  "monarque_sacre": number (0-100),
-  "pape_spirituel": number (0-100),
-  "emprise_reptilienne": number (0-100),
-  "kvorz": number (0-100),
-  "niveau_eveil": number (0-100),
-  "elements": {"terre": number, "eau": number, "feu": number, "air": number, "ether": number},
-  "evacuation_eligible": boolean,
-  "evacuation_percent": number (0-100),
-  "evacuation_note": string,
-  "radar_stellaire": [number, number, number, number, number, number],
-  "geo_forme": string,
-  "geo_nombre": string,
-  "geo_cristal": string,
-  "geo_portail": string,
-  "ego": number (0-100),
-  "humilite": number (0-100),
-  "fierte": number (0-100),
-  "intentions": string,
-  "themes": string[],
-  "keywords": string[],
-  "verbe_parole": string,
-  "verbe_action": string,
-  "verbe_creation": string,
-  "astro_ascendant": string,
-  "astro_lunaire": string,
-  "astro_solaire": string
-}
+  if (replyData.error === 'SESSION_EXPIRED') {
+    loginOverlay.classList.remove('hidden');
+    isProcessing = false; sendBtn.disabled = false;
+    return;
+  }
 
-Message à analyser : "${userText}"`;
+  if (replyData.error) {
+    appendMessage('assistant', '⚠ ' + replyData.error);
+    setAnalysisStatus('idle', '◈ ERREUR API — ' + replyData.error);
+    isProcessing = false; sendBtn.disabled = false; msgInput.focus();
+    return;
+  }
+
+  appendMessage('assistant', replyData.reply, replyData.timestamp, replyData.meta);
+  totalMsgs++;
+  totalTokens += (replyData.meta?.tokens?.in||0) + (replyData.meta?.tokens?.out||0);
+  updateSidebar(replyData.meta, {});
+
+  // Débloque l'input immédiatement
+  isProcessing = false; sendBtn.disabled = false; msgInput.focus();
+
+  // ── PHASE 2 : analyze (non bloquant) ─────────────────────
+  setAnalysisStatus('processing', '◈ PHASE 2 — NEXUS ANALYSE…');
 
   try {
-    const response = await fetch(API_URL, {
+    const res2 = await fetch('api.php', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${"APIKEY_NOT_NEEDED"}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: MODEL_ANALYZE,
-        messages: [
-          { role: 'system', content: 'Tu es un analyseur vibratoire mystique. Tu réponds uniquement avec du JSON valide.' },
-          { role: 'user', content: analyzePrompt }
-        ],
-        temperature: 0.1,
-        max_tokens: 1000,
-        response_format: { type: 'json_object' }
-      })
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message:text, mode:currentMode, model:currentModel, phase:'analyze', msg_id:replyData.msg_id })
     });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    
-    // Vérifier que data.choices existe et n'est pas vide
-    if (!data || !data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
-      throw new Error('Réponse API invalide: choices manquant');
-    }
-    
-    const content = data.choices[0].message.content;
-    
-    // Nettoyer le JSON (enlever les backticks si présents)
-    const cleanJson = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    return JSON.parse(cleanJson);
-    
+    if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+    const ad = await res2.json();
+
+    updateAnalysis(ad.analysis, replyData.meta);
+    updateSidebar(replyData.meta, ad.stats);
+    setAnalysisStatus('done', '◈ NEXUS COMPLET — ' + ad.timestamp);
+    allAnalyses.push({ ts:ad.timestamp, text, analysis:ad.analysis });
+
   } catch(err) {
-    // Fallback avec valeurs par défaut
-    return getDefaultAnalysis();
+    setAnalysisStatus('idle', '◈ NEXUS ÉCHOUÉ — ' + err.message);
   }
-}
-
-function getDefaultAnalysis() {
-  return {
-    taux_bovis: 50,
-    taux_label: 'NORMAL',
-    chakra_dominant: 'CŒUR',
-    aura_couleur: 'Indéterminée',
-    christ_cosmique: 50,
-    monarque_sacre: 50,
-    pape_spirituel: 50,
-    emprise_reptilienne: 30,
-    kvorz: 20,
-    niveau_eveil: 50,
-    elements: { terre: 50, eau: 50, feu: 50, air: 50, ether: 50 },
-    evacuation_eligible: false,
-    evacuation_percent: 0,
-    evacuation_note: '—',
-    radar_stellaire: [50, 50, 50, 50, 50, 50],
-    geo_forme: '—',
-    geo_nombre: '—',
-    geo_cristal: '—',
-    geo_portail: '—',
-    ego: 50,
-    humilite: 50,
-    fierte: 50,
-    intentions: 'INDÉTERMINÉ',
-    themes: [],
-    keywords: [],
-    verbe_parole: '—',
-    verbe_action: '—',
-    verbe_creation: '—',
-    astro_ascendant: '—',
-    astro_lunaire: '—',
-    astro_solaire: '—'
-  };
-}
-
-// ════════════════════════════════════════════════════════
-// UPDATE BUGARACH PANEL
-// ════════════════════════════════════════════════════════
-function updateBugarachPanel(a) {
-  // ❶ Taux vibratoire
-  setText('taux-bovis-label', a.taux_label || 'NORMAL');
-  setText('taux-bovis-score', (a.taux_bovis || 50) + ' UB');
-  setWidth('taux-bovis-bar', a.taux_bovis || 50);
-  setText('chakra-dominant', a.chakra_dominant || '—');
-  setText('aura-couleur', a.aura_couleur || '—');
-  
-  // ❷ Divine Trinité
-  setMeter('m-christ', 'mv-christ', a.christ_cosmique);
-  setMeter('m-monarque', 'mv-monarque', a.monarque_sacre);
-  setMeter('m-pape', 'mv-pape', a.pape_spirituel);
-  
-  // ❸ Forces en présence
-  setMeter('m-reptilien', 'mv-reptilien', a.emprise_reptilienne);
-  setMeter('m-kvorz', 'mv-kvorz', a.kvorz);
-  setMeter('m-eveil', 'mv-eveil', a.niveau_eveil);
-  
-  // ❹ 5 Éléments
-  const elems = a.elements || {};
-  setBarElement('e-terre', 'ev-terre', elems.terre);
-  setBarElement('e-eau', 'ev-eau', elems.eau);
-  setBarElement('e-feu', 'ev-feu', elems.feu);
-  setBarElement('e-air', 'ev-air', elems.air);
-  setBarElement('e-ether', 'ev-ether', elems.ether);
-  
-  // ❺ Évacuation
-  setText('evac-status', a.evacuation_eligible ? 'ÉLIGIBLE ✓' : 'NON ÉLIGIBLE');
-  document.getElementById('evac-status').style.color = a.evacuation_eligible ? 'var(--accent3)' : 'var(--danger)';
-  setText('evac-percent', (a.evacuation_percent || 0) + '%');
-  setText('evac-note', a.evacuation_note || '—');
-  
-  // ❻ Radar stellaire
-  if (stellarChart && a.radar_stellaire) {
-    stellarChart.data.datasets[0].data = a.radar_stellaire;
-    stellarChart.update();
-  }
-  
-  // ❼ Géométrie sacrée
-  setText('geo-forme', a.geo_forme || '—');
-  setText('geo-nombre', a.geo_nombre || '—');
-  setText('geo-cristal', a.geo_cristal || '—');
-  setText('geo-portail', a.geo_portail || '—');
-  
-  // ❽ Ego
-  setMeter('m-ego', 'mv-ego', a.ego);
-  setMeter('m-humilite', 'mv-humilite', a.humilite);
-  setMeter('m-fierte', 'mv-fierte', a.fierte);
-  
-  // ❾ Intentions
-  setText('intent-badge', a.intentions || 'INDÉTERMINÉ');
-  renderTags('themes-tags', a.themes || [], 'tag-theme');
-  renderTags('keywords-tags', a.keywords || [], 'tag-keyword');
-  
-  // ❿ Verbe
-  setText('verbe-parole', a.verbe_parole || '—');
-  setText('verbe-action', a.verbe_action || '—');
-  setText('verbe-creation', a.verbe_creation || '—');
-  
-  // ⓫ Astrologie
-  setText('astro-ascendant', a.astro_ascendant || '—');
-  setText('astro-lunaire', a.astro_lunaire || '—');
-  setText('astro-solaire', a.astro_solaire || '—');
-  
-  // ⓬ Méta
-  setText('meta-model', MODEL_ANALYZE);
-  setText('meta-latency', '— ms');
-  setText('meta-session', (localStorage.getItem('alcyon_user') ? JSON.parse(localStorage.getItem('alcyon_user')).sid : '—'));
-  setText('meta-time', new Date().toLocaleTimeString('fr-FR'));
-  
-  // Flash blocks
-  document.querySelectorAll('.analysis-block').forEach(el => {
-    el.classList.remove('updated');
-    void el.offsetWidth;
-    el.classList.add('updated');
-  });
 }
 
 // ════════════════════════════════════════════════════════
 // MESSAGES DOM
 // ════════════════════════════════════════════════════════
-function appendMessage(role, text) {
-  const wrap = document.createElement('div');
+function appendMessage(role, text, timestamp, meta) {
+  const wrap   = document.createElement('div');
   wrap.className = 'msg-wrap ' + role;
-  
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
   bubble.textContent = text;
-  
-  const meta = document.createElement('div');
-  meta.className = 'msg-meta';
-  meta.textContent = role === 'user'
+  const m = document.createElement('div');
+  m.className = 'msg-meta';
+  m.textContent = role === 'user'
     ? 'VOUS • ' + new Date().toLocaleTimeString('fr-FR')
-    : PERSONAS[currentPersona].name.toUpperCase() + ' • ' + new Date().toLocaleTimeString('fr-FR');
-  
-  wrap.appendChild(bubble);
-  wrap.appendChild(meta);
+    : 'AETHER • ' + (timestamp||'') + ' • ' + (meta?.model||'');
+  wrap.appendChild(bubble); wrap.appendChild(m);
   messagesEl.appendChild(wrap);
-  
-  requestAnimationFrame(() => {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  });
-  
+  // SCROLL to bottom — critique
+  requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
   return wrap;
 }
 
 function appendTyping() {
   const wrap = document.createElement('div');
   wrap.className = 'msg-wrap assistant';
-  wrap.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div>CANALISATION…</div>`;
+  wrap.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div>NEXUS TRAITE…</div>`;
   messagesEl.appendChild(wrap);
-  
-  requestAnimationFrame(() => {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  });
-  
+  requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
   return wrap;
+}
+
+// ════════════════════════════════════════════════════════
+// UPDATE ANALYSIS (mapping complet 12 blocs)
+// ════════════════════════════════════════════════════════
+function updateAnalysis(analysis, meta) {
+  if (!analysis) return;
+  const a     = analysis.a || {};
+  const b     = analysis.b || {};
+  const psych = a.psychological || {};
+  const mkt   = a.marketing     || {};
+  const socio = b.sociological  || {};
+  const beh   = b.behavioral    || {};
+  const ling  = b.linguistic_fingerprint || {};
+
+  // ❶ Émotionnel
+  const score = parseInt(a.sentiment_score)||50;
+  setText('sentiment-label', (a.sentiment||'neutre').toUpperCase());
+  setText('sentiment-score', score+'/100');
+  setWidth('sentiment-bar',  score);
+  setText('emotion-primary',   a.emotion_primary||'—');
+  setText('emotion-secondary', a.emotion_secondary||'—');
+  setText('tone-val', a.tone||'—');
+
+  // ❷ Style
+  setBar('sb-formal',   'sb-formal-v',   a.style_formal);
+  setBar('sb-assert',   'sb-assert-v',   a.style_assertive);
+  setBar('sb-creative', 'sb-creative-v', a.style_creative);
+
+  // ❸ Psycho
+  setMeter('m-stress',       'mv-stress',     psych.stress_level);
+  setMeter('m-dissonance',   'mv-dissonance', psych.cognitive_dissonance);
+  setMeter('m-motivation-bar','mv-motivation', psych.big5_openness);
+  setText('pg-maslow', psych.maslow_level||'—');
+  setText('pg-attach',  psych.attachment_style||'—');
+  setText('pg-locus',   psych.locus_control||'—');
+  setText('pg-motiv',   psych.motivation_type||'—');
+  renderTags('defense-tags', psych.defense_mechanisms||[], 'tag-pattern');
+
+  // ❹ BIG FIVE barres verticales
+  setBig5('b5-open','bv-open', psych.big5_openness);
+  setBig5('b5-cons','bv-cons', psych.big5_conscientiousness);
+  setBig5('b5-extra','bv-extra',psych.big5_extraversion);
+  setBig5('b5-agree','bv-agree',psych.big5_agreeableness);
+  setBig5('b5-neuro','bv-neuro',psych.big5_neuroticism);
+
+  // ❺ Marketing
+  setText('mkt-persona', mkt.buyer_persona||'INDÉTERMINÉ');
+  setMeter('m-engage',    'mv-engage',    mkt.engagement_score);
+  setMeter('m-urgency',   'mv-urgency',   mkt.urgency_level);
+  setMeter('m-objection', 'mv-objection', mkt.objection_likelihood);
+  setMeter('m-persuasion','mv-persuasion',mkt.persuasion_susceptibility);
+  setText('mkt-decision', mkt.decision_style||'—');
+  setText('mkt-price',    mkt.price_sensitivity||'—');
+  renderTags('pain-tags',   mkt.pain_points||[], 'tag-keyword');
+  renderTags('desire-tags', mkt.desires||[], 'tag-theme');
+
+  // ❻ Radar
+  if (styleChart) {
+    styleChart.data.datasets[0].data = [
+      a.style_formal||0, a.style_assertive||0, a.style_creative||0,
+      b.information_density||0, b.complexity||0, b.certainty_level||0
+    ];
+    styleChart.update();
+  }
+
+  // ❼ Sociologique
+  setText('sg-edu',   socio.estimated_education||'—');
+  setText('sg-gen',   socio.generational_marker||'—');
+  setText('sg-class', socio.social_class_signals||'—');
+  setText('sg-polit', socio.political_signals||'—');
+  setText('sg-socio', socio.sociolect||'—');
+  setMeter('m-indiv',  'mv-indiv',  socio.individualism_score);
+  setMeter('m-conform','mv-conform',socio.conformity_score);
+  renderTags('cult-tags', socio.cultural_references||[], 'tag-theme');
+
+  // ❽ Structure + chart
+  setText('st-complexity', b.complexity||'—');
+  setText('st-richness',   b.vocabulary_richness||'—');
+  setText('st-density',    b.information_density||'—');
+  setText('st-cogload',    b.cognitive_load||'—');
+  setText('st-certainty',  b.certainty_level||'—');
+  setText('st-hedging',    ling.hedging_frequency||'—');
+  if (structChart) {
+    structChart.data.datasets[0].data = [b.complexity||0,b.vocabulary_richness||0,b.information_density||0,b.cognitive_load||0,b.certainty_level||0];
+    structChart.update();
+  }
+
+  // ❾ Comportemental
+  setMeter('m-decision','mv-decision',beh.decision_readiness);
+  setMeter('m-risk',    'mv-risk',    beh.risk_tolerance);
+  setMeter('m-info',    'mv-info',    beh.information_seeking);
+  setMeter('m-auth',    'mv-auth',    beh.authority_deference);
+  setMeter('m-consist', 'mv-consist', beh.consistency_bias);
+  renderTags('bias-tags', beh.cognitive_biases||[], 'tag-keyword');
+
+  // ❿ Intention
+  setText('intent-badge', (b.intent||'indéterminé').toUpperCase());
+  renderTags('themes-tags',   b.themes||[], 'tag-theme');
+  renderTags('keywords-tags', b.keywords||[], 'tag-keyword');
+
+  // ⓫ Linguistique
+  setText('lg-struct',  ling.sentence_structure||'—');
+  setText('lg-voice',   ling.voice||'—');
+  setText('lg-punct',   ling.punctuation_style||'—');
+  setText('lg-lexdiv',  ling.lexical_diversity||'—');
+  renderTags('patterns-tags', b.language_patterns||[], 'tag-pattern');
+  renderTags('devices-tags',  b.rhetorical_devices||[], 'tag-device');
+  renderTags('anomaly-tags',  b.anomaly_signals||[], 'tag-keyword');
+
+  // ⓬ Meta
+  if (meta) {
+    setText('meta-model',   meta.model||'—');
+    setText('meta-latency', meta.latency ? meta.latency+' ms' : '—');
+    setText('meta-tin',     meta.tokens?.in||'—');
+    setText('meta-tout',    meta.tokens?.out||'—');
+    setText('meta-session', meta.session||'—');
+    setText('meta-time',    new Date().toLocaleTimeString('fr-FR'));
+  }
+
+  // Flash blocks
+  document.querySelectorAll('.analysis-block').forEach(el => {
+    el.classList.remove('updated'); void el.offsetWidth; el.classList.add('updated');
+  });
 }
 
 // ════════════════════════════════════════════════════════
 // DOM HELPERS
 // ════════════════════════════════════════════════════════
-function setText(id, val) {
-  const e = document.getElementById(id);
-  if (e) e.textContent = val;
-}
-
-function setWidth(id, pct) {
-  const e = document.getElementById(id);
-  if (e) e.style.width = (parseInt(pct) || 0) + '%';
-}
-
-function setBar(fId, vId, val) {
-  const v = parseInt(val) || 0;
-  setWidth(fId, v);
-  if (vId) setText(vId, v);
-}
-
-function setBarElement(fillId, valId, val) {
-  const v = parseInt(val) || 0;
+function setText(id, val) { const e=document.getElementById(id); if(e) e.textContent=val; }
+function setWidth(id, pct) { const e=document.getElementById(id); if(e) e.style.width=(parseInt(pct)||0)+'%'; }
+function setBar(fId, vId, val) { const v=parseInt(val)||0; setWidth(fId,v); setText(vId,v); }
+function setMeter(fId, vId, val) { const v=parseInt(val)||0; setWidth(fId,v); if(vId) setText(vId,v); }
+function setBig5(fillId, valId, val) {
+  const v = parseInt(val)||0;
   const el = document.getElementById(fillId);
-  if (el) el.style.width = v + '%';
+  if (el) el.style.height = v + '%';
   setText(valId, v);
 }
 
-function setMeter(fId, vId, val) {
-  const v = parseInt(val) || 0;
-  setWidth(fId, v);
-  if (vId) setText(vId, v);
-}
-
-function renderTags(containerId, items, cls) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  if (!Array.isArray(items) || !items.length) {
-    container.innerHTML = '<span style="font-size:.58rem;color:#2a3550;font-family:\'Share Tech Mono\',monospace">—</span>';
+function renderTags(cId, items, cls) {
+  const c = document.getElementById(cId);
+  if (!c) return;
+  c.innerHTML = '';
+  if (!Array.isArray(items)||!items.length) {
+    c.innerHTML = '<span style="font-size:.58rem;color:#2a3550;font-family:\'Share Tech Mono\',monospace">—</span>';
     return;
   }
-  
-  items.slice(0, 7).forEach((item, i) => {
-    const tag = document.createElement('span');
-    tag.className = 'tag ' + cls;
-    tag.textContent = item;
-    tag.style.animationDelay = (i * 40) + 'ms';
-    container.appendChild(tag);
+  items.slice(0,7).forEach((item,i) => {
+    const t = document.createElement('span');
+    t.className = 'tag '+cls;
+    t.textContent = item;
+    t.style.animationDelay = (i*40)+'ms';
+    c.appendChild(t);
   });
 }
 
@@ -576,19 +400,113 @@ function setAnalysisStatus(state, text) {
   if (e) e.innerHTML = `<span class="status-${state}">${text}</span>`;
 }
 
-function updateSidebar() {
-  setText('total-mantras', mantraCount);
-  setText('total-prieres', priereCount);
-  setText('karma-score', karmaScore);
+function updateSidebar(meta, stats) {
+  setText('total-tokens', totalTokens);
+  setText('total-msgs',   totalMsgs);
+  setText('last-latency', meta?.latency ? meta.latency+' ms' : '—');
+  if (stats?.avg_sent) setText('avg-sentiment', Math.round(stats.avg_sent));
 }
 
 function updateInputMeta() {
-  const t = msgInput?.value || '';
+  const t = msgInput?.value||'';
   const w = t.trim() ? t.trim().split(/\s+/).length : 0;
-  if (document.getElementById('char-count'))
-    document.getElementById('char-count').textContent = t.length + ' car.';
-  if (document.getElementById('word-count-input'))
-    document.getElementById('word-count-input').textContent = w + ' mots';
+  if(charCount)   charCount.textContent   = t.length+' car.';
+  if(wordCountEl) wordCountEl.textContent = w+' mots';
+}
+
+// ════════════════════════════════════════════════════════
+// PAGES
+// ════════════════════════════════════════════════════════
+function showLoading(cId, icon, label) {
+  const c = document.getElementById(cId);
+  if (!c) return;
+  c.innerHTML = `<div class="section-loading">
+    <div class="loading-icon">${icon}</div>
+    <div class="loading-text">${label}<br><span class="loading-dots"><span></span><span></span><span></span></span></div>
+  </div>`;
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadHistory() {
+  showLoading('history-content', '◎', 'CHARGEMENT HISTORIQUE');
+  try {
+    const data = await (await fetch('history.php')).json();
+    const c = document.getElementById('history-content');
+    if (!data.messages?.length) {
+      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◎</div><div class="section-idle-title">HISTORIQUE VIDE</div><div class="section-idle-sub">Aucun message dans cette session.</div></div>';
+      return;
+    }
+    c.innerHTML = data.messages.map(m => `
+      <div class="history-row ${m.role}">
+        <div class="history-role">${m.role==='user'?'VOUS':'AETHER'}</div>
+        <div class="history-content">${escHtml(m.content)}</div>
+        <div class="history-meta">${m.created_at||''} • ${m.model_used||''} • ${((m.tokens_in||0)+(m.tokens_out||0))} tok</div>
+      </div>`).join('');
+  } catch(e) {
+    document.getElementById('history-content').innerHTML = `<div class="error-msg">ERREUR: ${escHtml(e.message)}</div>`;
+  }
+}
+
+async function loadCognitiveAnalysis() {
+  showLoading('cognitive-content', '◉', 'CHARGEMENT PROFILS BIG BROTHER');
+  try {
+    const data = await (await fetch('stats.php')).json();
+    const c = document.getElementById('cognitive-content');
+    if (!data.profiles?.length) {
+      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◉</div><div class="section-idle-title">AUCUN PROFIL</div><div class="section-idle-sub">Démarrez des conversations pour générer des profils.</div></div>';
+      return;
+    }
+    c.innerHTML = `
+      <div class="bb-header">◈ BIG BROTHER — ${data.profiles.length} SESSION(S) ANALYSÉE(S)</div>
+      <div class="profiles-grid">
+      ${data.profiles.map((p,i) => `
+        <div class="profile-card">
+          <div class="profile-header">
+            <span class="profile-sid">SESSION #${i+1} — ${escHtml((p.session_id||'').substring(0,10))}</span>
+            <span class="profile-count">${p.msg_count} msgs • ${p.total_tokens||0} tok</span>
+          </div>
+          <div class="profile-meters">
+            <div class="pm-item"><span>SENTIMENT</span><div class="meter-track sm"><div class="meter-fill green" style="width:${Math.round(p.avg_sent||50)}%"></div></div><span>${Math.round(p.avg_sent||50)}</span></div>
+            <div class="pm-item"><span>COMPLEXITÉ</span><div class="meter-track sm"><div class="meter-fill accent" style="width:${Math.round(p.avg_cpx||50)}%"></div></div><span>${Math.round(p.avg_cpx||50)}</span></div>
+            <div class="pm-item"><span>COG.LOAD</span><div class="meter-track sm"><div class="meter-fill warn" style="width:${Math.round(p.avg_cog||50)}%"></div></div><span>${Math.round(p.avg_cog||50)}</span></div>
+          </div>
+          <div class="profile-tags">
+            ${(p.top_themes||[]).map(t=>`<span class="tag tag-theme">${escHtml(t)}</span>`).join('')}
+            ${(p.top_emotions||[]).map(e=>`<span class="tag tag-keyword">${escHtml(e)}</span>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    document.getElementById('cognitive-content').innerHTML = `<div class="error-msg">ERREUR: ${escHtml(e.message)}</div>`;
+  }
+}
+
+async function loadSystem() {
+  showLoading('system-content', '⬟', 'DIAGNOSTICS EN COURS');
+  try {
+    const d = await (await fetch('system.php')).json();
+    document.getElementById('system-content').innerHTML = `
+      <div class="sys-grid">
+        <div class="sys-item"><span class="sys-label">PHP</span><span class="sys-val">${d.php||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">SERVEUR</span><span class="sys-val">${d.server||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">MEM LIMIT</span><span class="sys-val">${d.memory_limit||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">MAX EXEC</span><span class="sys-val">${d.max_exec||'—'}s</span></div>
+        <div class="sys-item"><span class="sys-label">DB SIZE</span><span class="sys-val">${d.db_size||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">SESSIONS</span><span class="sys-val">${d.total_sessions||0}</span></div>
+        <div class="sys-item"><span class="sys-label">MESSAGES</span><span class="sys-val">${d.total_messages||0}</span></div>
+        <div class="sys-item"><span class="sys-label">ANALYSES</span><span class="sys-val">${d.total_analyses||0}</span></div>
+        <div class="sys-item"><span class="sys-label">CLÉS VALIDES</span><span class="sys-val">${d.keys_count||0}/3</span></div>
+        <div class="sys-item"><span class="sys-label">MOD. CHAT</span><span class="sys-val">${d.model_chat||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">MOD. ANALYSE</span><span class="sys-val">${d.model_analysis||'—'}</span></div>
+        <div class="sys-item"><span class="sys-label">DATE</span><span class="sys-val">${d.uptime||'—'}</span></div>
+      </div>
+      <div class="sys-keys-status">
+        ${(d.key_status||[]).map(k=>`<div class="key-row-sys"><span class="dot ${k.ok?'dot-green':'dot-red'}"></span>${escHtml(k.role)} — ${k.ok?'OPÉRATIONNELLE':'INVALIDE'}</div>`).join('')}
+      </div>`;
+  } catch(e) {
+    document.getElementById('system-content').innerHTML = `<div class="error-msg">ERREUR: ${escHtml(e.message)}</div>`;
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -603,43 +521,37 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   });
 });
 
-if (personaSelect) {
-  personaSelect.addEventListener('change', () => {
-    currentPersona = personaSelect.value;
-    const name = PERSONAS[currentPersona]?.name || 'Sylvain Durif';
-    setText('current-persona', name.toUpperCase());
-    setText('chat-persona-label', name.split(' ')[0]);
+if (modelSelect) {
+  modelSelect.addEventListener('change', () => {
+    currentModel = modelSelect.value;
+    setText('chat-model-label', modelSelect.options[modelSelect.selectedIndex].text.split('·')[0].trim());
   });
 }
 
 if (msgInput) {
   msgInput.addEventListener('input', updateInputMeta);
   msgInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 }
-
 if (sendBtn) sendBtn.addEventListener('click', sendMessage);
 
 if (clearBtn) {
-  clearBtn.addEventListener('click', () => {
-    if (!confirm('Purifier cette session ?')) return;
-    conversationHistory = [];
-    messagesEl.innerHTML = `<div class="welcome-msg"><div class="welcome-icon">⬡</div><div class="welcome-text"><strong>SESSION PURIFIÉE</strong><br><span>Nouvelle session démarrée.</span></div></div>`;
-    mantraCount = 0;
-    priereCount = 0;
-    karmaScore = 0;
-    updateSidebar();
-    setAnalysisStatus('idle', '◈ EN ATTENTE');
-    
-    // Reset chart
-    if (stellarChart) {
-      stellarChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0];
-      stellarChart.update();
-    }
+  clearBtn.addEventListener('click', async () => {
+    if (!confirm('Effacer la session ?')) return;
+    try { await fetch('clear.php',{method:'POST'}); } catch(e){}
+    messagesEl.innerHTML = `<div class="welcome-msg"><div class="welcome-icon">⬡</div><div class="welcome-text"><strong>SESSION RÉINITIALISÉE</strong><br><span>Nouvelle session démarrée.</span></div></div>`;
+    totalTokens=0; totalMsgs=0; allAnalyses=[];
+    updateSidebar({},{}); setAnalysisStatus('idle','◈ EN ATTENTE');
+  });
+}
+
+// Mobile NEXUS toggle
+if (mobileBtn) {
+  mobileBtn.addEventListener('click', () => {
+    const open = analysisPanel.classList.toggle('mobile-open');
+    mobileBtn.classList.toggle('active', open);
+    mobileBtn.textContent = open ? '✕' : '◉';
   });
 }
 
@@ -650,6 +562,5 @@ setText('chat-time', new Date().toLocaleTimeString('fr-FR'));
 // ════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════
-checkExistingSession();
 initCharts();
 loginEmail.focus();
