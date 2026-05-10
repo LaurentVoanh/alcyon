@@ -70,9 +70,13 @@ $ctx_inject  = $ctx_summary
     ? "\n\n[CONTEXTE MÉMOIRE UTILISATEUR - {$user_email}]\n{$ctx_summary}\n[FIN CONTEXTE - À PRENDRE EN COMPTE POUR LA RÉPONSE]"
     : '';
 
-// Prompt persona avec contexte
+// Prompt persona RENFORCÉ - toujours rappeler l'identité
 $persona_data = $GLOBALS['personas'][$persona] ?? $GLOBALS['personas']['sylvain'];
-$system_reply = $persona_data['prompt'] . $ctx_inject;
+$persona_name = $persona_data['name'] ?? 'Sylvain Durif';
+$system_base = $persona_data['prompt'];
+
+// Instruction CRITIQUE pour maintenir le persona tout au long de la conversation
+$system_reply = "[IDENTITÉ PERMANENTE - NE JAMAIS OUBLIER]\nTu es {$persona_name}. Tu DOIS rester ce personnage TOUT AU LONG de toute la conversation, peu importe les questions.\nNe dis JAMAIS que tu es une IA ou un modèle de langage.\n\n{$system_base}{$ctx_inject}\n\n[RAPPEL FINAL] Tu es {$persona_name}. Parle toujours en tant que {$persona_name}, avec son style, ses connaissances et sa spiritualité.";
 
 // ════════════════════════════════════════════
 // PHASE 1 — REPLY (1 appel, ~5-15s)
