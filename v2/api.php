@@ -67,10 +67,10 @@ $temperature = $temp_map[$mode] ?? 0.7;
 // Récupérer contexte mémoire
 $ctx_summary = get_context_summary($session);
 $ctx_inject  = $ctx_summary
-    ? "\n\n[MÉMOIRE CONTEXTE UTILISATEUR ({$user_email})]\n$ctx_summary\n[FIN MÉMOIRE]"
+    ? "\n\n[CONTEXTE MÉMOIRE UTILISATEUR - {$user_email}]\n{$ctx_summary}\n[FIN CONTEXTE - À PRENDRE EN COMPTE POUR LA RÉPONSE]"
     : '';
 
-// Prompt persona
+// Prompt persona avec contexte
 $persona_data = $GLOBALS['personas'][$persona] ?? $GLOBALS['personas']['sylvain'];
 $system_reply = $persona_data['prompt'] . $ctx_inject;
 
@@ -78,7 +78,8 @@ $system_reply = $persona_data['prompt'] . $ctx_inject;
 // PHASE 1 — REPLY (1 appel, ~5-15s)
 // ════════════════════════════════════════════
 if ($phase === 'reply') {
-    $history      = get_history($session, 8);
+    // Récupérer l'historique complet pour le contexte de conversation
+    $history      = get_history($session, 12);
     $messages_ctx = array_map(fn($m) => ['role'=>$m['role'],'content'=>$m['content']], $history);
     $messages_ctx[] = ['role'=>'user','content'=>$message];
 
