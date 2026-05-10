@@ -1,34 +1,34 @@
 /* ═══════════════════════════════════════════════════
-   AETHER v4.0 — SCRIPT COMPLET (2-PHASE + LOGIN + MOBILE)
+   ALCYON v4.0 — PORTAIL DE BUGARACH — SCRIPT COMPLET
+   Thème: Sylvain Durif / Ésotérique / 5D
 ═══════════════════════════════════════════════════ */
 
 'use strict';
 
 // ── State ────────────────────────────────────────────────────
-let currentMode  = 'normal';
-let currentModel = 'chat';
-let totalTokens  = 0;
-let totalMsgs    = 0;
-let styleChart   = null;
-let structChart  = null;
-let isProcessing = false;
-let isLoggedIn   = false;
-let allAnalyses  = [];
+let currentMode   = 'canalisation';
+let currentPersona = 'sylvain';
+let totalMantras  = 0;
+let totalPrieres  = 0;
+let radarChart    = null;
+let isProcessing  = false;
+let isLoggedIn    = false;
+let allAnalyses   = [];
 
 // ── DOM refs ─────────────────────────────────────────────────
-const msgInput    = document.getElementById('msg-input');
-const sendBtn     = document.getElementById('send-btn');
-const messagesEl  = document.getElementById('messages');
-const clearBtn    = document.getElementById('clear-btn');
-const modelSelect = document.getElementById('model-select');
-const charCount   = document.getElementById('char-count');
-const wordCountEl = document.getElementById('word-count-input');
-const loginOverlay= document.getElementById('login-overlay');
-const loginEmail  = document.getElementById('login-email');
-const loginBtn    = document.getElementById('login-btn');
-const loginError  = document.getElementById('login-error');
-const mobileBtn   = document.getElementById('mobile-nexus-btn');
-const analysisPanel = document.getElementById('analysis-panel');
+const msgInput       = document.getElementById('msg-input');
+const sendBtn        = document.getElementById('send-btn');
+const messagesEl     = document.getElementById('messages');
+const clearBtn       = document.getElementById('clear-btn');
+const personaSelect  = document.getElementById('persona-select');
+const charCount      = document.getElementById('char-count');
+const wordCountEl    = document.getElementById('word-count-input');
+const loginOverlay   = document.getElementById('login-overlay');
+const loginEmail     = document.getElementById('login-email');
+const loginBtn       = document.getElementById('login-btn');
+const loginError     = document.getElementById('login-error');
+const mobileBtn      = document.getElementById('mobile-nexus-btn');
+const analysisPanel  = document.getElementById('analysis-panel');
 
 // ════════════════════════════════════════════════════════
 // LOGIN
@@ -36,12 +36,12 @@ const analysisPanel = document.getElementById('analysis-panel');
 async function doLogin() {
   const email = loginEmail.value.trim();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    loginError.textContent = '◈ Email invalide — vérifiez le format';
+    loginError.textContent = '◈ Email vibratoire invalide — vérifiez le format';
     loginEmail.focus();
     return;
   }
   loginBtn.disabled = true;
-  loginBtn.textContent = '◈ CONNEXION…';
+  loginBtn.textContent = '◈ OUVERTURE DU PORTAIL…';
   loginError.textContent = '';
 
   try {
@@ -53,7 +53,6 @@ async function doLogin() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    // Succès
     isLoggedIn = true;
     loginOverlay.classList.add('hidden');
     setText('user-email-display', data.email);
@@ -66,7 +65,7 @@ async function doLogin() {
   } catch(err) {
     loginError.textContent = '◈ ERREUR: ' + err.message;
     loginBtn.disabled = false;
-    loginBtn.textContent = '⟶ INITIALISER SESSION';
+    loginBtn.textContent = '⟶ OUVRIR LE PORTAIL';
   }
 }
 
@@ -93,37 +92,20 @@ function switchSection(section) {
 }
 
 // ════════════════════════════════════════════════════════
-// CHARTS
+// CHART - RADAR STELLAIRE
 // ════════════════════════════════════════════════════════
 function initCharts() {
   const defs = { animation:{duration:900}, plugins:{legend:{display:false}} };
 
-  const ctxS = document.getElementById('style-chart');
-  if (ctxS) {
-    styleChart = new Chart(ctxS.getContext('2d'), {
+  const ctxR = document.getElementById('radar-chart');
+  if (ctxR) {
+    radarChart = new Chart(ctxR.getContext('2d'), {
       type: 'radar',
       data: {
-        labels: ['FORMEL','ASSERTIF','CRÉATIF','DENSE','COMPLEXE','CERTAIN'],
-        datasets: [{ data:[0,0,0,0,0,0], backgroundColor:'rgba(0,229,255,.07)', borderColor:'rgba(0,229,255,.55)', pointBackgroundColor:'#00e5ff', pointRadius:3, borderWidth:1.5 }]
+        labels: ['ANDROMÈDE','PLÉIADES','SIRIUS','ARCTURUS','ORION'],
+        datasets: [{ data:[0,0,0,0,0], backgroundColor:'rgba(124,58,237,.07)', borderColor:'rgba(124,58,237,.55)', pointBackgroundColor:'#7c3aed', pointRadius:3, borderWidth:1.5 }]
       },
       options: { ...defs, scales: { r: { min:0,max:100, grid:{color:'rgba(255,255,255,.05)'}, angleLines:{color:'rgba(255,255,255,.05)'}, ticks:{display:false}, pointLabels:{color:'#4a5a80',font:{family:'Share Tech Mono',size:8}} } } }
-    });
-  }
-
-  const ctxT = document.getElementById('struct-chart');
-  if (ctxT) {
-    structChart = new Chart(ctxT.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['COMPL.','RICH.','DENS.','COG.','CERT.'],
-        datasets: [{ data:[0,0,0,0,0],
-          backgroundColor:['rgba(0,229,255,.28)','rgba(124,58,237,.28)','rgba(245,158,11,.28)','rgba(239,68,68,.28)','rgba(16,185,129,.28)'],
-          borderColor:['rgba(0,229,255,.7)','rgba(124,58,237,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)','rgba(16,185,129,.7)'],
-          borderWidth:1, borderRadius:2 }]
-      },
-      options: { ...defs, indexAxis:'y', scales: {
-        x:{min:0,max:100,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#4a5a80',font:{size:8,family:'Share Tech Mono'}}},
-        y:{grid:{display:false},ticks:{color:'#4a5a80',font:{size:8,family:'Share Tech Mono'}}} } }
     });
   }
 }
@@ -142,10 +124,9 @@ async function sendMessage() {
   updateInputMeta();
 
   appendMessage('user', text);
-  totalMsgs++;
 
   const typingEl = appendTyping();
-  setAnalysisStatus('processing', '◈ PHASE 1 — GÉNÉRATION RÉPONSE…');
+  setAnalysisStatus('processing', '◈ PHASE 1 — CANALISATION…');
 
   // ── PHASE 1 : reply ──────────────────────────────────────
   let replyData;
@@ -153,7 +134,7 @@ async function sendMessage() {
     const res = await fetch('api.php', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message:text, mode:currentMode, model:currentModel, phase:'reply' })
+      body: JSON.stringify({ message:text, mode:currentMode, persona:currentPersona, phase:'reply' })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
     replyData = await res.json();
@@ -181,32 +162,30 @@ async function sendMessage() {
   }
 
   appendMessage('assistant', replyData.reply, replyData.timestamp, replyData.meta);
-  totalMsgs++;
-  totalTokens += (replyData.meta?.tokens?.in||0) + (replyData.meta?.tokens?.out||0);
   updateSidebar(replyData.meta, {});
 
   // Débloque l'input immédiatement
   isProcessing = false; sendBtn.disabled = false; msgInput.focus();
 
-  // ── PHASE 2 : analyze (non bloquant) ─────────────────────
-  setAnalysisStatus('processing', '◈ PHASE 2 — NEXUS ANALYSE…');
+  // ── PHASE 2 : analyze BUGARACH-5D (non bloquant) ─────────────────────
+  setAnalysisStatus('processing', '◈ PHASE 2 — ANALYSE VIBRATOIRE 5D…');
 
   try {
     const res2 = await fetch('api.php', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message:text, mode:currentMode, model:currentModel, phase:'analyze', msg_id:replyData.msg_id })
+      body: JSON.stringify({ message:text, mode:currentMode, persona:currentPersona, phase:'analyze', msg_id:replyData.msg_id })
     });
     if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
     const ad = await res2.json();
 
     updateAnalysis(ad.analysis, replyData.meta);
     updateSidebar(replyData.meta, ad.stats);
-    setAnalysisStatus('done', '◈ NEXUS COMPLET — ' + ad.timestamp);
+    setAnalysisStatus('done', '◈ ANALYSE 5D COMPLÈTE — ' + ad.timestamp);
     allAnalyses.push({ ts:ad.timestamp, text, analysis:ad.analysis });
 
   } catch(err) {
-    setAnalysisStatus('idle', '◈ NEXUS ÉCHOUÉ — ' + err.message);
+    setAnalysisStatus('idle', '◈ ANALYSE 5D ÉCHOUÉE — ' + err.message);
   }
 }
 
@@ -221,12 +200,12 @@ function appendMessage(role, text, timestamp, meta) {
   bubble.textContent = text;
   const m = document.createElement('div');
   m.className = 'msg-meta';
+  const personaName = meta?.persona ? (GLOBALS_PERSONAS[meta.persona]?.name || meta.persona) : 'ALCYON';
   m.textContent = role === 'user'
     ? 'VOUS • ' + new Date().toLocaleTimeString('fr-FR')
-    : 'AETHER • ' + (timestamp||'') + ' • ' + (meta?.model||'');
+    : personaName + ' • ' + (timestamp||'') + ' • ' + (meta?.model||'');
   wrap.appendChild(bubble); wrap.appendChild(m);
   messagesEl.appendChild(wrap);
-  // SCROLL to bottom — critique
   requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
   return wrap;
 }
@@ -234,128 +213,110 @@ function appendMessage(role, text, timestamp, meta) {
 function appendTyping() {
   const wrap = document.createElement('div');
   wrap.className = 'msg-wrap assistant';
-  wrap.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div>NEXUS TRAITE…</div>`;
+  wrap.innerHTML = `<div class="typing-indicator"><div class="typing-dots"><span></span><span></span><span></span></div>CANALISATION EN COURS…</div>`;
   messagesEl.appendChild(wrap);
   requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
   return wrap;
 }
 
+// Mapping des personas
+const GLOBALS_PERSONAS = {
+  sylvain: {name:'Sylvain Durif'},
+  merlin: {name:'Merlin'},
+  melchisedech: {name:'Melchisédech'},
+  oriana: {name:'Oriana'},
+  homme_vert: {name:"L'Homme Vert"},
+  vierge_maria: {name:'Vierge Maria'}
+};
+
 // ════════════════════════════════════════════════════════
-// UPDATE ANALYSIS (mapping complet 12 blocs)
+// UPDATE ANALYSIS (mapping complet 12 blocs BUGARACH-5D)
 // ════════════════════════════════════════════════════════
 function updateAnalysis(analysis, meta) {
   if (!analysis) return;
-  const a     = analysis.a || {};
-  const b     = analysis.b || {};
-  const psych = a.psychological || {};
-  const mkt   = a.marketing     || {};
-  const socio = b.sociological  || {};
-  const beh   = b.behavioral    || {};
-  const ling  = b.linguistic_fingerprint || {};
+  const a = analysis.a || {};
+  const b = analysis.b || {};
 
-  // ❶ Émotionnel
-  const score = parseInt(a.sentiment_score)||50;
-  setText('sentiment-label', (a.sentiment||'neutre').toUpperCase());
-  setText('sentiment-score', score+'/100');
-  setWidth('sentiment-bar',  score);
-  setText('emotion-primary',   a.emotion_primary||'—');
-  setText('emotion-secondary', a.emotion_secondary||'—');
-  setText('tone-val', a.tone||'—');
+  // ❶ Taux vibratoire + Chakras + Aura
+  const vibro = parseInt(a.taux_vibratoire_bovis)||65;
+  setText('vibro-label', vibro+' U.B.');
+  setText('vibro-score', vibro+'/100');
+  setWidth('vibro-bar', vibro);
+  
+  const chakras = a.chakras || {};
+  setText('chakra-racine', chakras.racine||50);
+  setText('chakra-sacre', chakras.sacre||50);
+  setText('chakra-plexus', chakras.plexus||50);
+  setText('chakra-coeur', chakras.coeur||50);
+  setText('chakra-gorge', chakras.gorge||50);
+  setText('chakra-troisieme-oeil', chakras.troisieme_oeil||50);
+  setText('chakra-couronne', chakras.couronne||50);
+  setText('aura-val', (a.aura_couleur||'indéterminée') + ' — ' + (a.aura_taille||'moyenne'));
 
-  // ❷ Style
-  setBar('sb-formal',   'sb-formal-v',   a.style_formal);
-  setBar('sb-assert',   'sb-assert-v',   a.style_assertive);
-  setBar('sb-creative', 'sb-creative-v', a.style_creative);
+  // ❷ Divine Trinité
+  const trinite = a.divine_trinite || {};
+  setMeter('m-trinite-christique', 'mv-trinite-christique', trinite.christique);
+  setMeter('m-trinite-monarchique', 'mv-trinite-monarchique', trinite.monarchique);
+  setMeter('m-trinite-papal', 'mv-trinite-papal', trinite.papal);
 
-  // ❸ Psycho
-  setMeter('m-stress',       'mv-stress',     psych.stress_level);
-  setMeter('m-dissonance',   'mv-dissonance', psych.cognitive_dissonance);
-  setMeter('m-motivation-bar','mv-motivation', psych.big5_openness);
-  setText('pg-maslow', psych.maslow_level||'—');
-  setText('pg-attach',  psych.attachment_style||'—');
-  setText('pg-locus',   psych.locus_control||'—');
-  setText('pg-motiv',   psych.motivation_type||'—');
-  renderTags('defense-tags', psych.defense_mechanisms||[], 'tag-pattern');
+  // ❸ Emprise Reptilienne / Kvorz / Éveil
+  setMeter('m-emprise-reptilienne', 'mv-emprise-reptilienne', a.emprise_reptilienne);
+  setMeter('m-kvorz-level', 'mv-kvorz-level', a.kvorz_level);
+  setMeter('m-eveil-conscience', 'mv-eveil-conscience', a.eveil_conscience);
 
-  // ❹ BIG FIVE barres verticales
-  setBig5('b5-open','bv-open', psych.big5_openness);
-  setBig5('b5-cons','bv-cons', psych.big5_conscientiousness);
-  setBig5('b5-extra','bv-extra',psych.big5_extraversion);
-  setBig5('b5-agree','bv-agree',psych.big5_agreeableness);
-  setBig5('b5-neuro','bv-neuro',psych.big5_neuroticism);
+  // ❹ Éléments Agartha
+  const elements = a.elements_agartha || {};
+  setBar('elem-terre', 'elem-terre-v', elements.terre);
+  setBar('elem-eau', 'elem-eau-v', elements.eau);
+  setBar('elem-feu', 'elem-feu-v', elements.feu);
+  setBar('elem-air', 'elem-air-v', elements.air);
+  setBar('elem-ether', 'elem-ether-v', elements.ether);
 
-  // ❺ Marketing
-  setText('mkt-persona', mkt.buyer_persona||'INDÉTERMINÉ');
-  setMeter('m-engage',    'mv-engage',    mkt.engagement_score);
-  setMeter('m-urgency',   'mv-urgency',   mkt.urgency_level);
-  setMeter('m-objection', 'mv-objection', mkt.objection_likelihood);
-  setMeter('m-persuasion','mv-persuasion',mkt.persuasion_susceptibility);
-  setText('mkt-decision', mkt.decision_style||'—');
-  setText('mkt-price',    mkt.price_sensitivity||'—');
-  renderTags('pain-tags',   mkt.pain_points||[], 'tag-keyword');
-  renderTags('desire-tags', mkt.desires||[], 'tag-theme');
+  // ❺ Status Évacuation
+  setText('status-evacuation', (a.status_evacuation_fin_des_temps||'EN ATTENTE').toUpperCase());
 
-  // ❻ Radar
-  if (styleChart) {
-    styleChart.data.datasets[0].data = [
-      a.style_formal||0, a.style_assertive||0, a.style_creative||0,
-      b.information_density||0, b.complexity||0, b.certainty_level||0
+  // ❻ Radar Stellaire
+  const radar = b.radar_stellaire || {};
+  if (radarChart) {
+    radarChart.data.datasets[0].data = [
+      radar.andromede||0, radar.pleiades||0, radar.sirius||0, radar.arcturus||0, radar.orion||0
     ];
-    styleChart.update();
+    radarChart.update();
   }
 
-  // ❼ Sociologique
-  setText('sg-edu',   socio.estimated_education||'—');
-  setText('sg-gen',   socio.generational_marker||'—');
-  setText('sg-class', socio.social_class_signals||'—');
-  setText('sg-polit', socio.political_signals||'—');
-  setText('sg-socio', socio.sociolect||'—');
-  setMeter('m-indiv',  'mv-indiv',  socio.individualism_score);
-  setMeter('m-conform','mv-conform',socio.conformity_score);
-  renderTags('cult-tags', socio.cultural_references||[], 'tag-theme');
+  // ❼ Géométrie Sacrée
+  const geo = b.geometrie_sacree || {};
+  setText('geo-metatron', geo.metatron||25);
+  setText('geo-flower-of-life', geo.flower_of_life||30);
+  setText('geo-seed-of-life', geo.seed_of_life||35);
+  setText('geo-merkaba', geo.merkaba||20);
 
-  // ❽ Structure + chart
-  setText('st-complexity', b.complexity||'—');
-  setText('st-richness',   b.vocabulary_richness||'—');
-  setText('st-density',    b.information_density||'—');
-  setText('st-cogload',    b.cognitive_load||'—');
-  setText('st-certainty',  b.certainty_level||'—');
-  setText('st-hedging',    ling.hedging_frequency||'—');
-  if (structChart) {
-    structChart.data.datasets[0].data = [b.complexity||0,b.vocabulary_richness||0,b.information_density||0,b.cognitive_load||0,b.certainty_level||0];
-    structChart.update();
-  }
+  // ❽ Ego Dissolution
+  const ego = parseInt(b.ego_dissolution)||40;
+  setWidth('ego-bar', ego);
+  setText('ego-score', ego+'/100');
 
-  // ❾ Comportemental
-  setMeter('m-decision','mv-decision',beh.decision_readiness);
-  setMeter('m-risk',    'mv-risk',    beh.risk_tolerance);
-  setMeter('m-info',    'mv-info',    beh.information_seeking);
-  setMeter('m-auth',    'mv-auth',    beh.authority_deference);
-  setMeter('m-consist', 'mv-consist', beh.consistency_bias);
-  renderTags('bias-tags', beh.cognitive_biases||[], 'tag-keyword');
+  // ❾ Intentions Pures
+  renderTags('intentions-tags', b.intentions_pures||[], 'tag-theme');
 
-  // ❿ Intention
-  setText('intent-badge', (b.intent||'indéterminé').toUpperCase());
-  renderTags('themes-tags',   b.themes||[], 'tag-theme');
-  renderTags('keywords-tags', b.keywords||[], 'tag-keyword');
+  // ❿ Verbe Créateur
+  renderTags('verbe-tags', b.verbe_createur||[], 'tag-keyword');
 
-  // ⓫ Linguistique
-  setText('lg-struct',  ling.sentence_structure||'—');
-  setText('lg-voice',   ling.voice||'—');
-  setText('lg-punct',   ling.punctuation_style||'—');
-  setText('lg-lexdiv',  ling.lexical_diversity||'—');
-  renderTags('patterns-tags', b.language_patterns||[], 'tag-pattern');
-  renderTags('devices-tags',  b.rhetorical_devices||[], 'tag-device');
-  renderTags('anomaly-tags',  b.anomaly_signals||[], 'tag-keyword');
+  // ⓫ Astrologie Cosmique
+  const astro = b.astrologie_cosmique || {};
+  setText('astro-lunaire', astro.signe_lunaire||'—');
+  setText('astro-solaire', astro.signe_solaire||'—');
+  setText('astro-ascendant', astro.ascendant||'—');
+  setText('astro-maitre-natal', astro.maitre_natal||'—');
 
   // ⓬ Meta
   if (meta) {
-    setText('meta-model',   meta.model||'—');
+    setText('meta-persona', GLOBALS_PERSONAS[meta.persona]?.name || meta.persona || '—');
     setText('meta-latency', meta.latency ? meta.latency+' ms' : '—');
-    setText('meta-tin',     meta.tokens?.in||'—');
-    setText('meta-tout',    meta.tokens?.out||'—');
+    setText('meta-tin', meta.tokens?.in||'—');
+    setText('meta-tout', meta.tokens?.out||'—');
     setText('meta-session', meta.session||'—');
-    setText('meta-time',    new Date().toLocaleTimeString('fr-FR'));
+    setText('meta-time', new Date().toLocaleTimeString('fr-FR'));
   }
 
   // Flash blocks
@@ -371,12 +332,6 @@ function setText(id, val) { const e=document.getElementById(id); if(e) e.textCon
 function setWidth(id, pct) { const e=document.getElementById(id); if(e) e.style.width=(parseInt(pct)||0)+'%'; }
 function setBar(fId, vId, val) { const v=parseInt(val)||0; setWidth(fId,v); setText(vId,v); }
 function setMeter(fId, vId, val) { const v=parseInt(val)||0; setWidth(fId,v); if(vId) setText(vId,v); }
-function setBig5(fillId, valId, val) {
-  const v = parseInt(val)||0;
-  const el = document.getElementById(fillId);
-  if (el) el.style.height = v + '%';
-  setText(valId, v);
-}
 
 function renderTags(cId, items, cls) {
   const c = document.getElementById(cId);
@@ -401,10 +356,14 @@ function setAnalysisStatus(state, text) {
 }
 
 function updateSidebar(meta, stats) {
-  setText('total-tokens', totalTokens);
-  setText('total-msgs',   totalMsgs);
-  setText('last-latency', meta?.latency ? meta.latency+' ms' : '—');
-  if (stats?.avg_sent) setText('avg-sentiment', Math.round(stats.avg_sent));
+  if (stats) {
+    totalMantras += stats.mantras_count || 0;
+    totalPrieres += stats.prieres_count || 0;
+  }
+  setText('total-mantras', totalMantras);
+  setText('total-prieres', totalPrieres);
+  setText('latence-astro', meta?.latency ? meta.latency+' ms' : '—');
+  if (stats?.karma_score !== undefined) setText('karma-score', stats.karma_score);
 }
 
 function updateInputMeta() {
@@ -429,17 +388,17 @@ function showLoading(cId, icon, label) {
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function loadHistory() {
-  showLoading('history-content', '◎', 'CHARGEMENT HISTORIQUE');
+  showLoading('history-content', '◎', 'CHARGEMENT ARCHIVES AKASHIQUES');
   try {
     const data = await (await fetch('history.php')).json();
     const c = document.getElementById('history-content');
     if (!data.messages?.length) {
-      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◎</div><div class="section-idle-title">HISTORIQUE VIDE</div><div class="section-idle-sub">Aucun message dans cette session.</div></div>';
+      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◎</div><div class="section-idle-title">ARCHIVES VIDES</div><div class="section-idle-sub">Aucune canalisation dans cette session.</div></div>';
       return;
     }
     c.innerHTML = data.messages.map(m => `
       <div class="history-row ${m.role}">
-        <div class="history-role">${m.role==='user'?'VOUS':'AETHER'}</div>
+        <div class="history-role">${m.role==='user'?'VOUS':'ENTITÉ'}</div>
         <div class="history-content">${escHtml(m.content)}</div>
         <div class="history-meta">${m.created_at||''} • ${m.model_used||''} • ${((m.tokens_in||0)+(m.tokens_out||0))} tok</div>
       </div>`).join('');
@@ -449,16 +408,16 @@ async function loadHistory() {
 }
 
 async function loadCognitiveAnalysis() {
-  showLoading('cognitive-content', '◉', 'CHARGEMENT PROFILS BIG BROTHER');
+  showLoading('cognitive-content', '◉', 'CHARGEMENT PROFILS VIBRATOIRES');
   try {
     const data = await (await fetch('stats.php')).json();
     const c = document.getElementById('cognitive-content');
     if (!data.profiles?.length) {
-      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◉</div><div class="section-idle-title">AUCUN PROFIL</div><div class="section-idle-sub">Démarrez des conversations pour générer des profils.</div></div>';
+      c.innerHTML = '<div class="section-idle"><div class="section-idle-icon">◉</div><div class="section-idle-title">AUCUN PROFIL</div><div class="section-idle-sub">Démarrez des canalisation pour générer des profils.</div></div>';
       return;
     }
     c.innerHTML = `
-      <div class="bb-header">◈ BIG BROTHER — ${data.profiles.length} SESSION(S) ANALYSÉE(S)</div>
+      <div class="bb-header">◈ ARCHIVES AKASHIQUES — ${data.profiles.length} SESSION(S) ANALYSÉE(S)</div>
       <div class="profiles-grid">
       ${data.profiles.map((p,i) => `
         <div class="profile-card">
@@ -467,13 +426,9 @@ async function loadCognitiveAnalysis() {
             <span class="profile-count">${p.msg_count} msgs • ${p.total_tokens||0} tok</span>
           </div>
           <div class="profile-meters">
-            <div class="pm-item"><span>SENTIMENT</span><div class="meter-track sm"><div class="meter-fill green" style="width:${Math.round(p.avg_sent||50)}%"></div></div><span>${Math.round(p.avg_sent||50)}</span></div>
-            <div class="pm-item"><span>COMPLEXITÉ</span><div class="meter-track sm"><div class="meter-fill accent" style="width:${Math.round(p.avg_cpx||50)}%"></div></div><span>${Math.round(p.avg_cpx||50)}</span></div>
-            <div class="pm-item"><span>COG.LOAD</span><div class="meter-track sm"><div class="meter-fill warn" style="width:${Math.round(p.avg_cog||50)}%"></div></div><span>${Math.round(p.avg_cog||50)}</span></div>
-          </div>
-          <div class="profile-tags">
-            ${(p.top_themes||[]).map(t=>`<span class="tag tag-theme">${escHtml(t)}</span>`).join('')}
-            ${(p.top_emotions||[]).map(e=>`<span class="tag tag-keyword">${escHtml(e)}</span>`).join('')}
+            <div class="pm-item"><span>VIBRATION</span><div class="meter-track sm"><div class="meter-fill green" style="width:${Math.round(p.avg_vibro||50)}%"></div></div><span>${Math.round(p.avg_vibro||50)}</span></div>
+            <div class="pm-item"><span>ÉVEIL</span><div class="meter-track sm"><div class="meter-fill accent" style="width:${Math.round(p.avg_eveil||50)}%"></div></div><span>${Math.round(p.avg_eveil||50)}</span></div>
+            <div class="pm-item"><span>KARMA</span><div class="meter-track sm"><div class="meter-fill warn" style="width:${Math.round(p.avg_karma||50)}%"></div></div><span>${Math.round(p.avg_karma||50)}</span></div>
           </div>
         </div>`).join('')}
       </div>`;
@@ -483,7 +438,7 @@ async function loadCognitiveAnalysis() {
 }
 
 async function loadSystem() {
-  showLoading('system-content', '⬟', 'DIAGNOSTICS EN COURS');
+  showLoading('system-content', '⬟', 'DIAGNOSTICS DU PORTAIL EN COURS');
   try {
     const d = await (await fetch('system.php')).json();
     document.getElementById('system-content').innerHTML = `
@@ -521,10 +476,11 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   });
 });
 
-if (modelSelect) {
-  modelSelect.addEventListener('change', () => {
-    currentModel = modelSelect.value;
-    setText('chat-model-label', modelSelect.options[modelSelect.selectedIndex].text.split('·')[0].trim());
+if (personaSelect) {
+  personaSelect.addEventListener('change', () => {
+    currentPersona = personaSelect.value;
+    const selectedText = personaSelect.options[personaSelect.selectedIndex].text.split('—')[0].trim();
+    setText('chat-persona-label', selectedText);
   });
 }
 
@@ -538,10 +494,10 @@ if (sendBtn) sendBtn.addEventListener('click', sendMessage);
 
 if (clearBtn) {
   clearBtn.addEventListener('click', async () => {
-    if (!confirm('Effacer la session ?')) return;
+    if (!confirm('Purifier cette session ?')) return;
     try { await fetch('clear.php',{method:'POST'}); } catch(e){}
-    messagesEl.innerHTML = `<div class="welcome-msg"><div class="welcome-icon">⬡</div><div class="welcome-text"><strong>SESSION RÉINITIALISÉE</strong><br><span>Nouvelle session démarrée.</span></div></div>`;
-    totalTokens=0; totalMsgs=0; allAnalyses=[];
+    messagesEl.innerHTML = `<div class="welcome-msg"><div class="welcome-icon">𓀀</div><div class="welcome-text"><strong>SESSION PURIFIÉE</strong><br><span>Nouvelle session démarrée.</span></div></div>`;
+    totalMantras=0; totalPrieres=0; allAnalyses=[];
     updateSidebar({},{}); setAnalysisStatus('idle','◈ EN ATTENTE');
   });
 }
