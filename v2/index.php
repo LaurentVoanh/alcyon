@@ -1,4 +1,4 @@
-<?php require_once 'config.php'; ?>
+<?php require_once 'config.php'; require_once 'database.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>

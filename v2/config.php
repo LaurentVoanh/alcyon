@@ -1,12 +1,15 @@
 <?php
 /**
  * ALCYON v4.0 — PORTAIL DE BUGARACH
- * Configuration — zéro backend, clé Mistral en direct
+ * Configuration — avec base de données SQLite
  */
 
 // Clé API Mistral (câblée en direct pour connexion JS)
 define('MISTRAL_API', 'https://api.mistral.ai/v1/chat/completions');
 define('MISTRAL_KEY', getenv('MISTRAL_API_KEY') ?: 'votre-cle-mistral-ici');
+
+// Base de données SQLite
+define('DB_PATH', __DIR__ . '/db/alcyon.sqlite');
 
 // Session PHP minimale pour le login email
 ini_set('session.cookie_httponly', 1);
